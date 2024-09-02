@@ -26,13 +26,10 @@ public class GenTsDTO : Generator
         Console.WriteLine($"Current working dir: {workingDir}");
         //Console.WriteLine(string.Join(",", args));
 
-        var outputDir = System.IO.Path.Combine(rootDir, "Output");
-        var templateDir = System.IO.Path.Combine(rootDir, "Templates");
         System.IO.Directory.CreateDirectory(outputDir);
 
 
         var jsons = _config.files.Where(_ => !_.Contains("_mapper.json"));
-        var docDir = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(rootDir), ".openapi-docs");
 
         JObject docJson = null;
         JObject jSchemas = null;

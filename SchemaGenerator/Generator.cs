@@ -12,12 +12,19 @@ namespace SchemaGenerator;
 public partial class Generator
 {
     private static readonly string _generatorFolder = ".generator";
+    private static readonly string _toolFolder = "SchemaGenerator";
     protected static Config _config;
     public static string sdkName => _config.sdkName; //"DragonflySchema";
     public static string moduleName => _config.moduleName; // "dragonfly_schema";
 
     public static string workingDir = Environment.CurrentDirectory;
     public static string rootDir => workingDir.Substring(0, workingDir.IndexOf(_generatorFolder) + _generatorFolder.Length);
+
+    public static string docDir => System.IO.Path.Combine(System.IO.Path.GetDirectoryName(rootDir), ".openapi-docs");
+    public static string defaultConfigPath = Path.Combine(rootDir, _toolFolder, "config.json");
+    public static string outputDir => System.IO.Path.Combine(rootDir, _toolFolder, "Output");
+    public static string templateDir => System.IO.Path.Combine(rootDir, _toolFolder, "Templates");
+
     static void Main(string[] args)
     {
 
@@ -28,21 +35,20 @@ public partial class Generator
             throw new ArgumentException($"Invalid {rootDir}");
         Console.WriteLine($"Current root dir: {rootDir}");
 
-        var outputDir = System.IO.Path.Combine(rootDir, "Output");
         System.IO.Directory.CreateDirectory(outputDir);
 
         var supportedArgs = new string[] { "--download", "--genTsModel", "--genCsModel", "--genCsInterface", "--updateVersion", "--config" };
         if (args == null || !args.Any())
             args = supportedArgs;
 
-        if (args.Any(_ => !supportedArgs.Contains(_)))
+        if (args.Where(_ => _.StartsWith("--")).Any(_ => !supportedArgs.Contains(_)))
             throw new ArgumentException($"Only following arguments are supported: {string.Join(",", supportedArgs)}");
 
 
         // get config.json
         var argList = args.ToList();
         var configIndex = argList.IndexOf("--config");
-        var configPath = Path.Combine(rootDir, "config.json");
+        var configPath = defaultConfigPath;
         if (configIndex >= 0 && !string.IsNullOrEmpty(argList.ElementAtOrDefault(configIndex + 1)))
         {
             var p = System.IO.Path.GetFullPath(argList.ElementAtOrDefault(configIndex + 1));
