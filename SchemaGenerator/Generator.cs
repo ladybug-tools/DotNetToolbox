@@ -11,7 +11,7 @@ namespace SchemaGenerator;
 
 public partial class Generator
 {
-    private static readonly string _generatorFolder = ".nswag-generator";
+    private static readonly string _generatorFolder = ".generator";
     protected static Config _config;
     public static string sdkName => _config.sdkName; //"DragonflySchema";
     public static string moduleName => _config.moduleName; // "dragonfly_schema";
@@ -35,7 +35,7 @@ public partial class Generator
         if (args == null || !args.Any())
             args = supportedArgs;
 
-        if (args.Any(_=> !supportedArgs.Contains(_))) 
+        if (args.Any(_ => !supportedArgs.Contains(_)))
             throw new ArgumentException($"Only following arguments are supported: {string.Join(",", supportedArgs)}");
 
 
@@ -43,7 +43,7 @@ public partial class Generator
         var argList = args.ToList();
         var configIndex = argList.IndexOf("--config");
         var configPath = Path.Combine(rootDir, "config.json");
-        if (configIndex >= 0 && !string.IsNullOrEmpty(argList.ElementAtOrDefault(configIndex+1)))
+        if (configIndex >= 0 && !string.IsNullOrEmpty(argList.ElementAtOrDefault(configIndex + 1)))
         {
             var p = System.IO.Path.GetFullPath(argList.ElementAtOrDefault(configIndex + 1));
             if (System.IO.Path.GetExtension(p).ToLower() == ".json")
@@ -161,7 +161,7 @@ public partial class Generator
 
     }
 
-    
+
     private static TemplateOptions _TsTemplateOptions;
     private static TemplateOptions _CsTemplateOptions;
     private static TemplateOptions GetTemplateOptions(TemplateModels.TargetLanguage language)
@@ -220,7 +220,7 @@ public partial class Generator
     {
         if (!System.IO.File.Exists(mapperFilePath) || !mapperFilePath.EndsWith("_mapper.json"))
             return null;
-        Console.WriteLine( $"Reading mapper from: {mapperFilePath}");
+        Console.WriteLine($"Reading mapper from: {mapperFilePath}");
         var mapperJson = System.IO.File.ReadAllText(mapperFilePath);
         var data = JObject.Parse(mapperJson);
         var classItems = (data["classes"] as JObject).Properties();
