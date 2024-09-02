@@ -14,10 +14,9 @@ namespace SchemaGenerator;
 
 public class GenInterface : Generator
 {
-  
+
     public static void Execute()
     {
-        var docDir = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(rootDir), ".openapi-docs");
         var mapper = System.IO.Path.Combine(docDir, "model_mapper.json");
         var interfaceDir = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(rootDir), "src", sdkName, "Interface");
         if (Directory.Exists(interfaceDir))
@@ -26,7 +25,6 @@ public class GenInterface : Generator
         var interfaces = ReadJson(mapper);
 
         // generate interfaces
-        var templateDir = System.IO.Path.Combine(rootDir, "Templates");
         var template = System.IO.Path.Combine(templateDir, TemplateModels.Helper.Language.ToString());
 
         var templateSource = File.ReadAllText(Path.Combine(template, "Interface.liquid"), System.Text.Encoding.UTF8);
@@ -56,7 +54,7 @@ public class GenInterface : Generator
 
     }
 
-  
+
 
     public static Dictionary<string, List<string>> ReadJson(string mapperFilePath)
     {

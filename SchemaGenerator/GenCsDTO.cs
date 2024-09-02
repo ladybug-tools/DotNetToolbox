@@ -22,15 +22,12 @@ public class GenCsDTO : Generator
         Console.WriteLine($"Current working dir: {workingDir}");
         //Console.WriteLine(string.Join(",", args));
 
-        var outputDir = System.IO.Path.Combine(rootDir, "Output");
-        var templateDir = System.IO.Path.Combine(rootDir, "Templates");
         System.IO.Directory.CreateDirectory(outputDir);
 
 
         //var schemaFile = System.IO.Path.Combine(outputDir, "schema.json");
         var jsons = _config.files.Where(_ => !_.Contains("_mapper.json"));
 
-        var docDir = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(rootDir), ".openapi-docs");
 
         JObject docJson = null;
         JObject jSchemas = null;
@@ -81,10 +78,10 @@ public class GenCsDTO : Generator
         ClassTemplateModel.SDKName = _sdkName;
         EnumTemplateModel.SDKName = _sdkName;
         ClassTemplateModel.CsImports = docMapper.All
-            .Select(_=>_.Module.Split(".").First()) // get the package name: honeybee_schema.radiance.modifierset
+            .Select(_ => _.Module.Split(".").First()) // get the package name: honeybee_schema.radiance.modifierset
             .Distinct() //honeybee_schema, dragonfly_schema
-            .Where(_=>_!= moduleName) //dragonfly_schema
-            .Select(_=> Helper.ToPascalCase(_)).ToList(); //DragonflySchema
+            .Where(_ => _ != moduleName) //dragonfly_schema
+            .Select(_ => Helper.ToPascalCase(_)).ToList(); //DragonflySchema
 
         foreach (var item in sc)
         {
@@ -94,7 +91,7 @@ public class GenCsDTO : Generator
             var module = docMapper.TryGetModule(key);
 
             // skip 
-            if (!string.IsNullOrEmpty(module) && !module.StartsWith(moduleName)) 
+            if (!string.IsNullOrEmpty(module) && !module.StartsWith(moduleName))
                 continue;
 
 
