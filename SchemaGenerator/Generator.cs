@@ -21,7 +21,7 @@ public partial class Generator
     public static string rootDir => workingDir.Substring(0, workingDir.IndexOf(_generatorFolder) + _generatorFolder.Length);
 
     public static string docDir => System.IO.Path.Combine(System.IO.Path.GetDirectoryName(rootDir), ".openapi-docs");
-    public static string defaultConfigPath = Path.Combine(rootDir, _toolFolder, "config.json");
+    public static string defaultConfigPath = Path.Combine(docDir, "config.json");
     public static string outputDir => System.IO.Path.Combine(rootDir, _toolFolder, "Output");
     public static string templateDir => System.IO.Path.Combine(rootDir, _toolFolder, "Templates");
 
