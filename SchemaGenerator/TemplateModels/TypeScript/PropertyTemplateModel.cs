@@ -202,6 +202,27 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
         }
 
 
+        if (!string.IsNullOrEmpty(json.Pattern))
+        {
+            result.Add($"@Matches(/{json.Pattern}/)");
+        }
+        if (json.Minimum.HasValue)
+        {
+            result.Add($"@Min({json.Minimum})");
+        }
+        if (json.Maximum.HasValue)
+        {
+            result.Add($"@Max({json.Maximum})");
+        }
+        if (json.MinLength.HasValue)
+        {
+            result.Add($"@MinLength({json.MinLength})");
+        }
+        if (json.MaxLength.HasValue)
+        {
+            result.Add($"@MaxLength({json.MaxLength})");
+        }
+
         return result;
 
     }
