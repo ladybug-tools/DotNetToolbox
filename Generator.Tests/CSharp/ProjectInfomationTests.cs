@@ -9,15 +9,15 @@ namespace Generator.Tests.CSharp
     public class ProjectInfomationTests
     {
 
-        static string workingDir = Environment.CurrentDirectory;
-        static string rootDir = workingDir.Substring(0, workingDir.IndexOf("src"));
+        static string workingDir = SchemaGenerator.Generator.workingDir;
+        static string rootDir = SchemaGenerator.Generator.rootDir;
+        static string docDic = SchemaGenerator.Generator.docDir;
         static OpenApiDocument doc = null;
         [SetUp]
         public void Setup()
         {
 
             Console.WriteLine($"Current working dir: {workingDir}");
-            var docDic = Path.Combine(rootDir, ".openapi-docs");
             var jsonFile = Path.Combine(docDic, "project-information_inheritance.json");
 
             var json = File.ReadAllText(jsonFile);
@@ -39,6 +39,18 @@ namespace Generator.Tests.CSharp
 
         }
 
+        [Test]
+        public void TestMinimumMaximum()
+        {
+            var json = doc.Components.Schemas["ProjectInfo"];
+
+            var classModel = new ClassTemplateModel(doc, json);
+            var prop = classModel.Properties.First(_ => _.CsPropertyName == "North");
+            Assert.IsNotNull(prop);
+
+            Assert.That(prop.HasMaximum, Is.True);
+
+        }
 
     }
 }
