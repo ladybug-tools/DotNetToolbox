@@ -19,7 +19,8 @@ public class ClassTemplateModel : ClassTemplateModelBase
     public bool HasProperties => Properties.Any();
     public List<PropertyTemplateModel> Properties { get; set; }
     public static List<string> CsImports { get; set; } = new List<string>();
-    public bool HasCsImports => CsImports.Any();
+    public List<string> CsPackages => CsImports;
+    public bool HasCsImports => CsPackages.Any();
     public bool hasOnlyReadOnly { get; set; }
     public List<PropertyTemplateModel> ParentProperties { get; set; }
     public List<PropertyTemplateModel> AllProperties { get; set; }
