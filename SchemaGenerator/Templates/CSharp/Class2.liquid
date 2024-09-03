@@ -18,8 +18,8 @@ using LBTNewtonSoft::Newtonsoft.Json;
 using LBTNewtonSoft::Newtonsoft.Json.Converters;
 using System.ComponentModel.DataAnnotations;
 {% if HasCsImports -%}
-{% for Import in CsImports -%}
-using { {{ Import }} };
+{% for Package in CsPackages -%}
+using {{ Package }};
 {% endfor -%}
 {% endif -%}
 
