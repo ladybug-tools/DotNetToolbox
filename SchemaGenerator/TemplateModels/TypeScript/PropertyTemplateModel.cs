@@ -128,11 +128,15 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
         var result = new List<string>();
         if (json.IsArray)
         {
+            var arrayItem = json.Item;
+            var decos = GetValidationDecorators(arrayItem, true);
+
             result.Add("@IsArray({ each: true })"); // Ensures each item in the array is also an array.
             result.Add("@ValidateNested({each: true })");// Ensures each item in the array is validated as a nested object.
             result.Add($"@Type(() => Array)"); //Helps class-transformer understand that each item in the array should be treated as an array.
-            var decos = GetValidationDecorators(json.Item, true);
+
             result.AddRange(decos);
+
             return result;
         }
 
@@ -183,8 +187,30 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
         if (json.IsArray)
         {
             result.Add("@IsArray()");
-            var decos = GetValidationDecorators(json.Item, isArrayItem: true);
-            result.AddRange(decos);
+            var arrayItem = json.Item;
+            var decos = GetValidationDecorators(arrayItem, isArrayItem: true);
+
+            if (arrayItem.IsArray)
+            {
+                var IsNestedNumberArray = decos.Any(_ => _.StartsWith("@IsNumber"));
+                var IsNestedIntegerArray = decos.Any(_ => _.StartsWith("@IsInt"));
+                var IsNestedStringArray = decos.Any(_ => _.StartsWith("@IsString"));
+
+                if (IsNestedNumberArray)
+                    result.Add("@IsNestedNumberArray()"); // for number[][] or number[][][] types
+                else if (IsNestedIntegerArray)
+                    result.Add("@IsNestedIntegerArray()"); // for number[][] or number[][][] types
+                else if (IsNestedStringArray)
+                    result.Add("@IsNestedStringArray()"); // for number[][] or number[][][] types
+                else
+                    result.AddRange(decos);
+            }
+            else
+            {
+                result.AddRange(decos);
+            }
+          
+
         }
         else
         {

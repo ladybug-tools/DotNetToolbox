@@ -10,7 +10,7 @@ namespace Generator.Tests.TypeScript
     {
 
         static string workingDir = Environment.CurrentDirectory;
-        static string rootDir = workingDir.Substring(0, workingDir.IndexOf("src"));
+        static string rootDir = workingDir.Substring(0, workingDir.IndexOf(".generator"));
         static OpenApiDocument doc = null;
         [SetUp]
         public void Setup()
@@ -117,6 +117,21 @@ namespace Generator.Tests.TypeScript
             Assert.That(weathers, Is.Not.Null);
             CollectionAssert.Contains(weathers.ValidationDecorators, "@IsArray()");
             CollectionAssert.Contains(weathers.ValidationDecorators, "@IsNumber({},{ each: true })");
+
+        }
+
+
+        [Test]
+        public void TestNestedNumberArrayDecorators()
+        {
+            var json = doc.Components.Schemas["Face3D"];
+            var classModel = new ClassTemplateModel(doc, json);
+            Assert.That(classModel, Is.Not.Null);
+
+            var weathers = classModel.Properties.FirstOrDefault(_ => _.PropertyName == "boundary");
+            Assert.That(weathers, Is.Not.Null);
+            CollectionAssert.Contains(weathers.ValidationDecorators, "@IsArray()");
+            CollectionAssert.Contains(weathers.ValidationDecorators, "@IsNestedNumberArray()");
 
         }
     }
