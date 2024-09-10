@@ -20,7 +20,9 @@ public class ClassTemplateModel : ClassTemplateModelBase
     public List<string> TsValidatorImports { get; set; }
     public string TsValidatorImportsCode { get; set; }
 
-
+    public List<string> TsNestedValidatorImports { get; set; }
+    public string TsNestedValidatorImportsCode { get; set; }
+    public bool HasTsNestedValidator => !string.IsNullOrEmpty(TsNestedValidatorImportsCode);
 
     public ClassTemplateModel(OpenApiDocument doc, JsonSchema json, Mapper mapper = default) : base(doc, json)
     {
@@ -51,6 +53,13 @@ public class ClassTemplateModel : ClassTemplateModelBase
         paramValidators.Add("ValidationError as TsValidationError");
         TsValidatorImports = paramValidators.Distinct().ToList();
         TsValidatorImports = TsValidatorImports.Where(_=>_ != "Type").ToList();
+        var nestedValidators = TsValidatorImports.Where(x => x.StartsWith("IsNested")).ToList();
+        if (nestedValidators.Any())
+        {
+            TsValidatorImports = TsValidatorImports.Where(_ => !_.StartsWith("IsNested")).ToList();
+            TsNestedValidatorImports = nestedValidators;
+            TsNestedValidatorImportsCode = string.Join(", ", TsNestedValidatorImports);
+        }
         TsValidatorImportsCode = string.Join(", ", TsValidatorImports);
     }
 
