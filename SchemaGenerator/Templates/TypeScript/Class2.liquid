@@ -78,9 +78,12 @@ export {% if IsAbstract %}abstract {% endif %}class {{ ClassName }}{% if HasInhe
         {{ property.ConvertToJavaScriptCode | tab }}
 {% endfor -%}
 {% if HasInheritance -%}
-        super.toJSON(data);
-{% endif -%}
+        data = super.toJSON(data);
         return data;
+{%     else -%}
+        return Object.fromEntries(
+            Object.entries(data).filter(([_, v]) => v !== undefined));
+{% endif -%}
     }
 
 {%  if HasInheritance -%}
