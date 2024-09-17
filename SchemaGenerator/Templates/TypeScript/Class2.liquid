@@ -1,5 +1,5 @@
 import { {{TsValidatorImportsCode}} } from 'class-validator';
-import { Type, plainToClass } from 'class-transformer';
+import { Type, plainToClass, instanceToPlain } from 'class-transformer';
 {% if HasTsNestedValidator -%}
 import { {{TsNestedValidatorImportsCode}} } from "./../helpers/class-validator";
 {% endif -%}
@@ -79,7 +79,7 @@ export {% if IsAbstract %}abstract {% endif %}class {{ ClassName }}{% if HasInhe
 {% endfor -%}
 {% if HasInheritance -%}
         data = super.toJSON(data);
-        return data;
+        return instanceToPlain(data);
 {%     else -%}
         return Object.fromEntries(
             Object.entries(data).filter(([_, v]) => v !== undefined));
