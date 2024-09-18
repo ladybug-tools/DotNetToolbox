@@ -100,7 +100,13 @@ public partial class Generator
 
         var dir = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(rootDir), ".openapi-docs");
         if (System.IO.Directory.Exists(dir))
-            System.IO.Directory.Delete(dir, true);
+        {
+            var oldFiles = System.IO.Directory.GetFiles(dir).Where(_ => !_.Contains("config.json"));
+            foreach (var file in oldFiles)
+            {
+                System.IO.File.Delete(file);
+            }
+        }
         System.IO.Directory.CreateDirectory(dir);
         foreach (var f in files)
         {

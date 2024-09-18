@@ -113,7 +113,7 @@ public class GenTsDTO : Generator
         // gen TypeScript index.ts
         var indexTsPath = System.IO.Path.Combine(srcDir, "index.ts");
         var tsFiles = System.IO.Directory.GetFiles(srcDir, "*.ts");
-        var names = tsFiles.Select(_ => System.IO.Path.GetFileNameWithoutExtension(_)).ToList();
+        var names = tsFiles.Select(_ => System.IO.Path.GetFileNameWithoutExtension(_)).OrderBy(_=>_).ToList();
         var indexModel = new IndexTemplateModel();
         indexModel.Files = names;
         GenIndex(tsTemplate, indexModel, srcDir, ".ts");
