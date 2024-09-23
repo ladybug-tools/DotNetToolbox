@@ -1,5 +1,5 @@
 import { {{TsValidatorImportsCode}} } from 'class-validator';
-import { Type, plainToClass, instanceToPlain } from 'class-transformer';
+import { Type, plainToClass, instanceToPlain, Transform } from 'class-transformer';
 {% if HasTsNestedValidator -%}
 import { {{TsNestedValidatorImportsCode}} } from "./../helpers/class-validator";
 {% endif -%}
@@ -64,6 +64,13 @@ export {% if IsAbstract %}abstract {% endif %}class {{ ClassName }}{% if HasInhe
 {%     if IsAbstract -%}
         throw new Error("The abstract class '{{ ClassName }}' cannot be instantiated.");
 {%     else -%}
+        if (Array.isArray(data)) {
+            const obj:any = {};
+            for (var property in data) {
+                obj[property] = data[property];
+            }
+            data = obj;
+        }
         let result = new {{ ClassName }}();
         result.init(data);
         return result;
