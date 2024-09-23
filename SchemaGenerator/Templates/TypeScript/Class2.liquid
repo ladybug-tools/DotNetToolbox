@@ -19,6 +19,9 @@ export {% if IsAbstract %}abstract {% endif %}class {{ ClassName }}{% if HasInhe
     {{ decorator }}
 {%  endfor -%}
 {%  endif -%}
+{%  if property.HasTransformDecorator -%}
+    {{ TransformDecorator }}
+{%  endif -%}
 {%  if property.HasDescription -%}
     /** {{ property.Description }} */
 {%  endif -%}

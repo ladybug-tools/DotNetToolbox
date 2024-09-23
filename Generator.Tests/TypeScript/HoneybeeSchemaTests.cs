@@ -63,6 +63,8 @@ namespace Generator.Tests.TypeScript
             var df = pm.DefaultCodeFormat;
             StringAssert.Contains("[Plastic.fromJS(", df);
 
+            Assert.That(pm.TransformDecorator, Is.Not.Null);
+
         }
 
         [Test]
