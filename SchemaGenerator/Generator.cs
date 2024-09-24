@@ -134,25 +134,33 @@ public partial class Generator
         // Check the version from nuget
         var api = $"https://api.nuget.org/v3-flatcontainer/{sdkName.ToLower()}/index.json";
         var versions = (HttpHelper.ReadJson(api)["versions"] as JArray)?.Select(_ => _.ToString())?.ToList();
+        var increaseVersion = false;
         if (versions != null && versions.Any())
         {
             versions.Sort(new VersionComparer());
             var lastVersion = versions.Last().ToString();
             Console.WriteLine($"Found latest version on Nuget: {lastVersion}");
-            if (lastVersion.StartsWith(newVersion))
+            increaseVersion = lastVersion.StartsWith(newVersion);
+            if (increaseVersion)
                 newVersion = lastVersion;
             else
                 Console.WriteLine($"Schema version {newVersion} is newer than the latest version on Nuget: {lastVersion}");
-
         }
 
-        Console.WriteLine($"Getting an existing version: {newVersion}");
-        var digits = newVersion.Split(new[] { '.', '-' });
-        if (digits.Length == 4)
+        Console.WriteLine($"Getting the existing version: {newVersion}");
+        if (increaseVersion)
         {
-            var lastV = digits.LastOrDefault().Replace("v", "");
-            var v = int.Parse(lastV) + 1;
-            newVersion = string.Join(".", digits.SkipLast(1)) + $"-v{v}";
+            var digits = newVersion.Split(new[] { '.', '-' });
+            if (digits.Length == 4)
+            {
+                var lastV = digits.LastOrDefault().Replace("v", "");
+                var v = int.Parse(lastV) + 1;
+                newVersion = string.Join(".", digits.SkipLast(1)) + $"-v{v}";
+            }
+            else
+            {
+                newVersion = $"{newVersion}-v1";
+            }
         }
 
         Console.WriteLine($"New version: {newVersion}");
