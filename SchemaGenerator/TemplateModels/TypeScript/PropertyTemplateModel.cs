@@ -27,7 +27,7 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
     public bool HasValidationDecorators => ValidationDecorators.Any();
     public List<string> ValidationDecorators { get; set; }
 
-    public bool HasTransformDecorator => !string.IsNullOrEmpty(TransformDecorator);
+    public bool HasTransformDecorator => !string.IsNullOrWhiteSpace(TransformDecorator);
     public string TransformDecorator {  get; set; }
 
     public PropertyTemplateModel(string name, JsonSchemaProperty json) : base(name, json)
@@ -64,11 +64,10 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
             tps = tps.Select(_ => $"      {_}").ToList();
 
             var trans = string.Join(Environment.NewLine, tps);
-            code = $@"
-    @Transform(({{ value }}) => {{
+            code = $@"@Transform(({{ value }}) => {{
       const item = value;
 {trans}
-    }}))";
+    }})";
             return isArray ? trans : code;
         }
         else if (json.IsArray)
@@ -77,9 +76,8 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
             var itemCode = GetTransform(arrayItem, true);
             if (string.IsNullOrEmpty(itemCode))
                 return code;
-            code = $@"
-    @Transform(({{ value }}) => value.map((item: any) => {{
-      {itemCode}
+            code = $@"@Transform(({{ value }}) => value.map((item: any) => {{
+{itemCode}
     }}))";
             return code;
         }

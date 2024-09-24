@@ -20,7 +20,7 @@ export {% if IsAbstract %}abstract {% endif %}class {{ ClassName }}{% if HasInhe
 {%  endfor -%}
 {%  endif -%}
 {%  if property.HasTransformDecorator -%}
-    {{ TransformDecorator }}
+    {{ property.TransformDecorator }}
 {%  endif -%}
 {%  if property.HasDescription -%}
     /** {{ property.Description }} */
