@@ -58,7 +58,7 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
 
             var refTypes = json.AnyOf.Select(r => r.ActualSchema.Title).ToList();
 
-            var tps = refTypes.Select(_ => $"if (item.type === '{_}') return {_}.fromJS(item);").ToList();
+            var tps = refTypes.Select(_ => $"if (item?.type === '{_}') return {_}.fromJS(item);").ToList();
             tps = tps.Take(1).Concat(tps.Skip(1).Select(_ => $"else {_}")).ToList();
             tps.Add("else return item;");
             tps = tps.Select(_ => $"      {_}").ToList();
