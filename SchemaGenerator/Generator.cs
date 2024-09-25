@@ -127,7 +127,28 @@ public partial class Generator
         var jsonFile = System.IO.Path.Combine(docDir, "model_inheritance.json");
         var modelJson = System.IO.File.ReadAllText(jsonFile);
         var newVersion = JObject.Parse(modelJson)["info"]["version"].ToString();
-        newVersion = string.IsNullOrEmpty(newVersion) ? "1.0.0" : newVersion;
+        newVersion = string.IsNullOrEmpty(newVersion) ? "1.0" : newVersion;
+        Console.WriteLine($"Found document version: {newVersion}");
+
+        // 1.58.3.1 => 1.5803.1
+        //1.5.8 => 1.508
+        //1.12.8 => 1.1208
+        //1.12.12 => 1.1212
+        //1.13.9 => 1.1309
+        var digits = newVersion.Split(new[] { '.' }).ToList();
+        if (digits.Count < 3)
+            digits.Add("00");
+        if (digits.Count == 3) 
+            digits.Add("0");
+
+        var secondD = digits[1];
+        var thridD = digits[2];
+        thridD = thridD.Length == 1 ? $"0{thridD}" : thridD;
+        var fourthD = digits[3];
+
+        var baseVersion = $"{digits.First()}.{secondD}{thridD}";
+        newVersion = $"{baseVersion}.{fourthD}";
+        Console.WriteLine($"Re-formated document version: {newVersion}");
 
         var packageName = sdkName;
 
@@ -140,7 +161,7 @@ public partial class Generator
             versions.Sort(new VersionComparer());
             var lastVersion = versions.Last().ToString();
             Console.WriteLine($"Found latest version on Nuget: {lastVersion}");
-            increaseVersion = lastVersion.StartsWith(newVersion);
+            increaseVersion = lastVersion.StartsWith(baseVersion);
             if (increaseVersion)
                 newVersion = lastVersion;
             else
@@ -150,16 +171,16 @@ public partial class Generator
         Console.WriteLine($"Getting the existing version: {newVersion}");
         if (increaseVersion)
         {
-            var digits = newVersion.Split(new[] { '.', '-' });
-            if (digits.Length == 4)
+            digits = newVersion.Split(new[] { '.' }).ToList();
+            if (digits.Count == 3)
             {
                 var lastV = digits.LastOrDefault().Replace("v", "");
                 var v = int.Parse(lastV) + 1;
-                newVersion = string.Join(".", digits.SkipLast(1)) + $"-v{v}";
+                newVersion = string.Join(".", digits.SkipLast(1)) + $".{v}";
             }
             else
             {
-                newVersion = $"{newVersion}-v1";
+                throw new ArgumentException("Unexpected version!!");
             }
         }
 
