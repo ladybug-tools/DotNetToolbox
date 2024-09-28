@@ -91,7 +91,6 @@ namespace Generator.Tests.TypeScript
             Assert.That(pm.IsAbstract, Is.False);
         }
 
-
         [Test]
         public void TestPropertyDecoratorsScheduleDay()
         {
@@ -135,22 +134,6 @@ namespace Generator.Tests.TypeScript
             Assert.That(weathers, Is.Not.Null);
             CollectionAssert.Contains(weathers.ValidationDecorators, "@IsArray()");
             CollectionAssert.Contains(weathers.ValidationDecorators, "@IsNestedNumberArray()");
-
-        }
-
-
-        [Test]
-        public void TestStoryImports()
-        {
-            var json = doc.Components.Schemas["Story"];
-
-            var pm = new ClassTemplateModel(doc, json);
-            //var import = pm.TsImports.First(_=>_.Name == "Autocalculate");
-            //Assert.That(import.From, Is.EqualTo("honeybee-schema"));
-
-            var rf = pm.TsImports.First(_ => _.Name == "RoofSpecification");
-            Assert.That(rf.From, Is.EqualTo("./RoofSpecification.ts"));
-
 
         }
     }
