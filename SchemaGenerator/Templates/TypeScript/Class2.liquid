@@ -5,7 +5,7 @@ import { {{TsNestedValidatorImportsCode}} } from "./../helpers/class-validator.t
 {% endif -%}
 {% if HasTsImports -%}
 {% for Import in TsImports -%}
-import { {{ Import.Name }} } from "{{ Import.From }}.ts";
+import { {{ Import.Name }} } from "{{ Import.From }}";
 {% endfor -%}
 {% endif -%}
 
