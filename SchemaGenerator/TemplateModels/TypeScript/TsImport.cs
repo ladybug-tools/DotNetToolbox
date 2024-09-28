@@ -16,11 +16,11 @@ public class TsImport
 
         if (string.IsNullOrEmpty(From))
         {
-            From = $"./{Name}.ts";
+            From = $"./{Name}";
         }
         else if (From.StartsWith(SchemaGenerator.Generator.moduleName))
         {
-            From = $"./{Name}.ts";
+            From = $"./{Name}";
         }
         else
         {
