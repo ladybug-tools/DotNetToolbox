@@ -76,7 +76,7 @@ public class GenTsDTO : Generator
         var tsTemplate = System.IO.Path.Combine(templateDir, TemplateModels.Helper.Language.ToString());
         var sc = doc.Components.Schemas;
         var classModels = new List<ClassTemplateModel>();
-        var srcDir = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(rootDir), "src", "TypeScriptSDK", "models");
+        var srcDir = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(rootDir), "src", "TypescriptSDK", "models");
         if (System.IO.Directory.Exists(srcDir))
             System.IO.Directory.Delete(srcDir, true);
         System.IO.Directory.CreateDirectory(srcDir);
@@ -113,7 +113,7 @@ public class GenTsDTO : Generator
         // gen TypeScript index.ts
         var indexTsPath = System.IO.Path.Combine(srcDir, "index.ts");
         var tsFiles = System.IO.Directory.GetFiles(srcDir, "*.ts");
-        var names = tsFiles.Select(_ => System.IO.Path.GetFileNameWithoutExtension(_)).OrderBy(_=>_).ToList();
+        var names = tsFiles.Select(_ => System.IO.Path.GetFileNameWithoutExtension(_)).OrderBy(_ => _).ToList();
         var indexModel = new IndexTemplateModel();
         indexModel.Files = names;
         GenIndex(tsTemplate, indexModel, srcDir, ".ts");
