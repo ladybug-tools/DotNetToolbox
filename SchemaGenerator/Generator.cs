@@ -138,7 +138,7 @@ public partial class Generator
         var digits = newVersion.Split(new[] { '.' }).ToList();
         if (digits.Count < 3)
             digits.Add("00");
-        if (digits.Count == 3) 
+        if (digits.Count == 3)
             digits.Add("0");
 
         var secondD = digits[1];
@@ -195,7 +195,7 @@ public partial class Generator
 
 
         //# update the version for TypeScript
-        var tsFile = System.IO.Path.Combine(root, "src", "TypeScriptSDK", "package.json");
+        var tsFile = System.IO.Path.Combine(root, "src", "TypescriptSDK", "package.json");
         file = System.IO.File.ReadAllText(tsFile, Encoding.UTF8);
         newFile = Regex.Replace(file, @"(?<=version"": "")[^""]+(?="")", newVersion);
         System.IO.File.WriteAllText(tsFile, newFile, new UTF8Encoding(false));
