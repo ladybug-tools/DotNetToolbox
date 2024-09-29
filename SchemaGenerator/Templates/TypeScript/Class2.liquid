@@ -1,11 +1,11 @@
 import { {{TsValidatorImportsCode}} } from 'class-validator';
 import { Type, plainToClass, instanceToPlain, Transform } from 'class-transformer';
 {% if HasTsNestedValidator -%}
-import { {{TsNestedValidatorImportsCode}} } from "./../helpers/class-validator.ts";
+import { {{TsNestedValidatorImportsCode}} } from "./../helpers/class-validator";
 {% endif -%}
 {% if HasTsImports -%}
 {% for Import in TsImports -%}
-import { {{ Import.Name }} } from "{{ Import.From }}.ts";
+import { {{ Import.Name }} } from "{{ Import.From }}";
 {% endfor -%}
 {% endif -%}
 
