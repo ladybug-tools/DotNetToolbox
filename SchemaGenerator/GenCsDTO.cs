@@ -74,6 +74,7 @@ public class GenCsDTO : Generator
         var sc = doc.Components.Schemas;
         var classModels = new List<ClassTemplateModel>();
         var srcDir = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(rootDir), "src", _sdkName, "Model");
+        Directory.CreateDirectory(srcDir);
 
         ClassTemplateModel.SDKName = _sdkName;
         EnumTemplateModel.SDKName = _sdkName;
