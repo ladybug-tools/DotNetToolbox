@@ -34,7 +34,7 @@ public class EnumItemTemplateModelBase
     {
         Index = i;
         Value = key;
-        Key = Regex.Replace(key, @"[^a-zA-Z0-9]", "");
+        Key = Helper.ToPascalCase( Helper.CleanName(key));
     }
 
 

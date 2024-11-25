@@ -201,10 +201,12 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
         if (defaultValue is string)
         {
             defaultCodeFormat = $"\"{defaultValue}\"";
+            // is enum
             if (prop.ActualSchema.IsEnumeration)
             {
                 var enumType = prop.ActualSchema.Title;
-                defaultCodeFormat = $"{enumType}.{defaultValue}";
+                var cleanEnumValue = Helper.ToPascalCase(Helper.CleanName(defaultValue.ToString()));
+                defaultCodeFormat = $"{enumType}.{cleanEnumValue}";
             }
 
         }
