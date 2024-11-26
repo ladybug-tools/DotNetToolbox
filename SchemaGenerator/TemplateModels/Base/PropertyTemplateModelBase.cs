@@ -21,7 +21,11 @@ public class PropertyTemplateModelBase
     public List<JsonSchema> AnyOf { get; set; }
 
     public bool IsArray { get; set; }
-    public PropertyTemplateModelBase(string name, JsonSchemaProperty json)
+    public PropertyTemplateModelBase(string name, JsonSchemaProperty json): this(name, json, json.IsRequired, json.IsReadOnly)
+    {
+    }
+
+    public PropertyTemplateModelBase(string name, JsonSchema json, bool isRequired, bool isReadOnly)
     {
         PropertyName = name;
         Default = json.Default;
@@ -30,8 +34,9 @@ public class PropertyTemplateModelBase
 
         AnyOf = json.AnyOf?.ToList();
         IsAnyOf = (AnyOf?.Any()).GetValueOrDefault();
-        IsReadOnly = json.IsReadOnly;
-        IsRequired = json.IsRequired;
+        IsReadOnly = isReadOnly;
+        IsRequired = isRequired;
         IsArray = json.IsArray;
+     
     }
 }
