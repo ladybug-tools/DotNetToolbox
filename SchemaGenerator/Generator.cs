@@ -130,6 +130,9 @@ public partial class Generator
         var root = System.IO.Path.GetDirectoryName(rootDir);
         var docDir = System.IO.Path.Combine(root, ".openapi-docs");
         var jsonFile = System.IO.Path.Combine(docDir, "model_inheritance.json");
+        if (!File.Exists(jsonFile))
+            jsonFile = Directory.GetFiles(docDir, "*_inheritance.json", SearchOption.TopDirectoryOnly).FirstOrDefault();
+
         var modelJson = System.IO.File.ReadAllText(jsonFile);
         var newVersion = JObject.Parse(modelJson)["info"]["version"].ToString();
         newVersion = string.IsNullOrEmpty(newVersion) ? "1.0" : newVersion;
@@ -156,22 +159,32 @@ public partial class Generator
         Console.WriteLine($"Re-formated document version: {newVersion}");
 
         var packageName = sdkName;
+        var increaseVersion = false;
+
 
         // Check the version from nuget
         var api = $"https://api.nuget.org/v3-flatcontainer/{sdkName.ToLower()}/index.json";
-        var versions = (HttpHelper.ReadJson(api)["versions"] as JArray)?.Select(_ => _.ToString())?.ToList();
-        var increaseVersion = false;
-        if (versions != null && versions.Any())
+        try
         {
-            versions.Sort(new VersionComparer());
-            var lastVersion = versions.Last().ToString();
-            Console.WriteLine($"Found latest version on Nuget: {lastVersion}");
-            increaseVersion = lastVersion.StartsWith(baseVersion);
-            if (increaseVersion)
-                newVersion = lastVersion;
-            else
-                Console.WriteLine($"Schema version {newVersion} is newer than the latest version on Nuget: {lastVersion}");
+            var nugetVersions = (HttpHelper.ReadJson(api)["versions"] as JArray)?.Select(_ => _.ToString())?.ToList();
+     
+            if (nugetVersions != null && nugetVersions.Any())
+            {
+                nugetVersions.Sort(new VersionComparer());
+                var lastVersion = nugetVersions.Last().ToString();
+                Console.WriteLine($"Found latest version on Nuget: {lastVersion}");
+                increaseVersion = lastVersion.StartsWith(baseVersion);
+                if (increaseVersion)
+                    newVersion = lastVersion;
+                else
+                    Console.WriteLine($"Schema version {newVersion} is newer than the latest version on Nuget: {lastVersion}");
+            }
         }
+        catch (Exception)
+        {
+            //throw;
+        }
+       
 
         Console.WriteLine($"Getting the existing version: {newVersion}");
         if (increaseVersion)
