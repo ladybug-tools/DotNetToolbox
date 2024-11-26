@@ -59,8 +59,8 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
         }
 
         PropertyName = string.IsNullOrEmpty(PropertyName) ? this.Type : PropertyName;
-        CsParameterName = Helper.ToCamelCase(Helper.CleanName(PropertyName));
-        CsPropertyName = Helper.ToPascalCase(Helper.CleanName(PropertyName));
+        CsParameterName = Helper.CleanName(Helper.ToCamelCase(PropertyName));
+        CsPropertyName = Helper.CleanName(Helper.ToPascalCase(PropertyName));
         Description = String.IsNullOrEmpty(Description) ? CsPropertyName : Description;
 
 
