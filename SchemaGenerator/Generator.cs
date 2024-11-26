@@ -207,16 +207,23 @@ public partial class Generator
 
         //# update the version for CSharp
         var assemblyFile = System.IO.Path.Combine(root, "src", packageName, $"{packageName}.csproj");
-        var file = System.IO.File.ReadAllText(assemblyFile);
-        var newFile = Regex.Replace(file, @"(?<=\SVersion\>)\S+(?=\<\/)", newVersion);
-        System.IO.File.WriteAllText(assemblyFile, newFile, Encoding.UTF8);
+        if (File.Exists(assemblyFile))
+        {
+            var file = System.IO.File.ReadAllText(assemblyFile);
+            var newFile = Regex.Replace(file, @"(?<=\SVersion\>)\S+(?=\<\/)", newVersion);
+            System.IO.File.WriteAllText(assemblyFile, newFile, Encoding.UTF8);
+        }
 
 
         //# update the version for TypeScript
         var tsFile = System.IO.Path.Combine(root, "src", "TypescriptSDK", "package.json");
-        file = System.IO.File.ReadAllText(tsFile, Encoding.UTF8);
-        newFile = Regex.Replace(file, @"(?<=version"": "")[^""]+(?="")", newVersion);
-        System.IO.File.WriteAllText(tsFile, newFile, new UTF8Encoding(false));
+        if (File.Exists(tsFile)) 
+        {
+            var file = System.IO.File.ReadAllText(tsFile, Encoding.UTF8);
+            var newFile = Regex.Replace(file, @"(?<=version"": "")[^""]+(?="")", newVersion);
+            System.IO.File.WriteAllText(tsFile, newFile, new UTF8Encoding(false));
+        }
+     
 
     }
 
