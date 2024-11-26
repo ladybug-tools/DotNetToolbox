@@ -24,7 +24,7 @@ public class ClassTemplateModel : ClassTemplateModelBase
     public string TsNestedValidatorImportsCode { get; set; }
     public bool HasTsNestedValidator => !string.IsNullOrEmpty(TsNestedValidatorImportsCode);
 
-    public ClassTemplateModel(OpenApiDocument doc, JsonSchema json, Mapper mapper = default) : base(doc, json)
+    public ClassTemplateModel(OpenApiDocument doc, JsonSchema json, Mapper mapper = default) : base(json)
     {
         mapper = mapper ?? new Mapper(null, null);
         Properties = json.ActualProperties.Select(_ => new PropertyTemplateModel(_.Key, _.Value)).ToList();

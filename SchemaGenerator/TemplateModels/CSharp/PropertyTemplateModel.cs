@@ -5,7 +5,6 @@ using NJsonSchema;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace TemplateModels.CSharp;
 
@@ -34,11 +33,15 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
     public bool HasMaxLength => MaxLength.HasValue;
     public int? MinLength { get; set; }
     public bool HasMinLength => MinLength.HasValue;
-    public PropertyTemplateModel(string name, JsonSchemaProperty json) : base(name, json)
+
+
+    public PropertyTemplateModel(string name, JsonSchemaProperty json) : this(name, json, json.IsRequired, json.IsReadOnly)
+    {
+    }
+
+    public PropertyTemplateModel(string name, JsonSchema json, bool isRequired, bool isReadOnly) : base(name, json, isRequired, isReadOnly)
     {
         DefaultCodeFormat = ConvertDefaultValue(json);
-        CsParameterName = Helper.ToCamelCase(PropertyName);
-        CsPropertyName = Helper.ToPascalCase(PropertyName);
 
         // check types
         if (IsArray)
@@ -55,9 +58,10 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
             Type = GetTypeString(json);
         }
 
-
+        PropertyName = string.IsNullOrEmpty(PropertyName) ? this.Type : PropertyName;
+        CsParameterName = Helper.ToCamelCase(Helper.CleanName(PropertyName));
+        CsPropertyName = Helper.ToPascalCase(Helper.CleanName(PropertyName));
         Description = String.IsNullOrEmpty(Description) ? CsPropertyName : Description;
-
 
 
         Pattern = json.Pattern;
@@ -68,8 +72,6 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
 
         IsEnumType = json.ActualSchema.IsEnumeration;
         IsValueType = CsValueType.Contains(Type) || IsEnumType;
-
-
 
         // check default value for constructor parameter
         ConstructionParameterCode = $"{Type} {CsParameterName}";
@@ -192,7 +194,7 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
     };
 
 
-    private static string ConvertDefaultValue(JsonSchemaProperty prop)
+    private static string ConvertDefaultValue(JsonSchema prop)
     {
         var defaultValue = prop.Default;
         var defaultCodeFormat = string.Empty;
