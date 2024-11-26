@@ -24,7 +24,7 @@ public class ClassTemplateModel : ClassTemplateModelBase
     public bool hasOnlyReadOnly { get; set; }
     public List<PropertyTemplateModel> ParentProperties { get; set; }
     public List<PropertyTemplateModel> AllProperties { get; set; }
-    public ClassTemplateModel(OpenApiDocument doc, JsonSchema json) : base(doc, json)
+    public ClassTemplateModel(OpenApiDocument doc, JsonSchema json) : base(json)
     {
 
         Properties = json.ActualProperties.Select(_ => new PropertyTemplateModel(_.Key, _.Value)).ToList();
