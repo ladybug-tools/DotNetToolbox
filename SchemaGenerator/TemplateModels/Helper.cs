@@ -168,13 +168,17 @@ namespace TemplateModels
             return typeName;
         }
 
-        public static string CleanName(string input)
+        public static string CleanName(string input, bool allowUnderscore = false)
         {
             if (string.IsNullOrEmpty(input))
                 return input;
 
             // Remove invalid characters
-            string cleaned = Regex.Replace(input, @"[^a-zA-Z0-9]", "");
+            var patten = allowUnderscore ? @"[^a-zA-Z0-9_]" : @"[^a-zA-Z0-9]";
+            string cleaned = Regex.Replace(input, patten, "");
+
+            // Remove first underscore if any: _OpenAPIBase
+            cleaned = cleaned.StartsWith("_") ? cleaned.Substring(1, cleaned.Length - 1) : cleaned;
 
             // Ensure the name starts with a letter or underscore
             if (!Regex.IsMatch(cleaned, @"^[a-zA-Z]"))
@@ -185,7 +189,7 @@ namespace TemplateModels
             return cleaned;
         }
 
-        public static string ToPascalCase(string input)
+        public static string ToPascalCase(string input, bool allowUnderscore = false)
         {
             if (string.IsNullOrEmpty(input))
             {
@@ -198,10 +202,10 @@ namespace TemplateModels
                 words[i] = char.ToUpper(words[i][0]) + words[i].Substring(1);
             }
 
-            return string.Join(string.Empty, words);
+            return allowUnderscore ? string.Join("_", words) : string.Join(string.Empty, words);
         }
 
-        public static string ToCamelCase(string input)
+        public static string ToCamelCase(string input, bool allowUnderscore = false)
         {
             if (string.IsNullOrEmpty(input))
             {
@@ -221,7 +225,8 @@ namespace TemplateModels
                 }
             }
 
-            return string.Join(string.Empty, words);
+            return allowUnderscore ? string.Join("_", words) : string.Join(string.Empty, words);
+
         }
 
 

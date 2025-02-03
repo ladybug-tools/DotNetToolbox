@@ -28,11 +28,11 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
     public List<string> ValidationDecorators { get; set; }
 
     public bool HasTransformDecorator => !string.IsNullOrWhiteSpace(TransformDecorator);
-    public string TransformDecorator {  get; set; }
+    public string TransformDecorator { get; set; }
 
     public PropertyTemplateModel(string name, JsonSchemaProperty json) : base(name, json)
     {
-
+        // get default value for property for the current client
         DefaultCodeFormat = ConvertTsDefaultValue(json);
 
         // check types
@@ -252,7 +252,7 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
             {
                 result.AddRange(decos);
             }
-          
+
 
         }
         else
@@ -312,10 +312,12 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
         if (defaultValue is string)
         {
             defaultCodeFormat = $"\"{defaultValue}\"";
+            // is enum
             if (prop.ActualSchema.IsEnumeration)
             {
                 var enumType = prop.ActualSchema.Title;
-                defaultCodeFormat = $"{enumType}.{defaultValue}";
+                var cleanEnumValue = Helper.ToPascalCase(Helper.CleanName(defaultValue.ToString(), true), true);
+                defaultCodeFormat = $"{enumType}.{cleanEnumValue}";
             }
 
         }

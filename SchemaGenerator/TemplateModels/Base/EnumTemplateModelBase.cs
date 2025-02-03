@@ -34,7 +34,7 @@ public class EnumItemTemplateModelBase
     {
         Index = i;
         Value = key;
-        Key = Helper.CleanName(Helper.ToPascalCase(key));
+        Key = Helper.CleanName(Helper.ToPascalCase(key, true), true);
     }
 
 

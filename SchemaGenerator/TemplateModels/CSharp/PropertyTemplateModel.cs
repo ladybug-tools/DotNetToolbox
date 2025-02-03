@@ -41,6 +41,7 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
 
     public PropertyTemplateModel(string name, JsonSchema json, bool isRequired, bool isReadOnly) : base(name, json, isRequired, isReadOnly)
     {
+        // get default value for property for the current client
         DefaultCodeFormat = ConvertDefaultValue(json);
 
         // check types
@@ -207,7 +208,7 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
             if (prop.ActualSchema.IsEnumeration)
             {
                 var enumType = prop.ActualSchema.Title;
-                var cleanEnumValue = Helper.ToPascalCase(Helper.CleanName(defaultValue.ToString()));
+                var cleanEnumValue = Helper.ToPascalCase(Helper.CleanName(defaultValue.ToString(), true), true);
                 defaultCodeFormat = $"{enumType}.{cleanEnumValue}";
             }
 
