@@ -15,7 +15,7 @@ namespace TemplateModels
         TypeScript
     }
 
-    internal class Helper
+    public class Helper
     {
         /// <summary>
         /// Get all related type, this is useful for Array or List with its ElementType and GenericArguments
@@ -205,6 +205,12 @@ namespace TemplateModels
             return allowUnderscore ? string.Join("_", words) : string.Join(string.Empty, words);
         }
 
+        /// <summary>
+        /// camelCase
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="allowUnderscore"></param>
+        /// <returns></returns>
         public static string ToCamelCase(string input, bool allowUnderscore = false)
         {
             if (string.IsNullOrEmpty(input))
@@ -213,6 +219,12 @@ namespace TemplateModels
             }
 
             var words = input.Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
+            if (words.Length ==1)
+            {
+                // CamelCase => camelCase
+                return char.ToLower(words[0][0]) + words[0].Substring(1);
+            }
+
             for (int i = 0; i < words.Length; i++)
             {
                 if (i == 0)
