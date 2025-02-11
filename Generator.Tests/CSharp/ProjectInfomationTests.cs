@@ -1,24 +1,17 @@
 using NSwag;
 using NJsonSchema;
-using NJsonSchema.CodeGeneration;
-using SchemaGenerator;
 using TemplateModels.CSharp;
 
 namespace Generator.Tests.CSharp
 {
     public class ProjectInfomationTests
     {
-
-        static string workingDir = SchemaGenerator.Generator.workingDir;
-        static string rootDir = SchemaGenerator.Generator.rootDir;
-        static string docDic = SchemaGenerator.Generator.docDir;
         static OpenApiDocument doc = null;
         [SetUp]
         public void Setup()
         {
 
-            Console.WriteLine($"Current working dir: {workingDir}");
-            var jsonFile = Path.Combine(docDic, "project-information_inheritance.json");
+            var jsonFile = Path.Combine(Helper.HoneybeeDir, "project-information_inheritance.json");
 
             var json = File.ReadAllText(jsonFile);
             doc = OpenApiDocument.FromJsonAsync(json).Result;
