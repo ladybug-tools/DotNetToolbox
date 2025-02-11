@@ -11,7 +11,7 @@ namespace Generator.Tests.CSharp
         public void Setup()
         {
 
-            var jsonFile = Path.Combine(Helper.HoneybeeDir, "project-information_inheritance.json");
+            var jsonFile = Path.Combine(TestHelper.HoneybeeDir, "project-information_inheritance.json");
 
             var json = File.ReadAllText(jsonFile);
             doc = OpenApiDocument.FromJsonAsync(json).Result;
