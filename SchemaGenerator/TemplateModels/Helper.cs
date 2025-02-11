@@ -196,7 +196,7 @@ namespace TemplateModels
                 return input;
             }
 
-            var words = input.Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
+            var words = input.Split(new[] { '_', '-' }, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < words.Length; i++)
             {
                 words[i] = char.ToUpper(words[i][0]) + words[i].Substring(1);
@@ -218,7 +218,7 @@ namespace TemplateModels
                 return input;
             }
 
-            var words = input.Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
+            var words = input.Split(new[] { '_', '-' }, StringSplitOptions.RemoveEmptyEntries);
             if (words.Length ==1)
             {
                 // CamelCase => camelCase
@@ -241,6 +241,18 @@ namespace TemplateModels
 
         }
 
+
+        public static string CleanMethodName(string input)
+        {
+            return ToPascalCase(CleanName(ToPascalCase(input)));
+        }
+
+        public static string CleanPropertyName(string input) => CleanMethodName(input);
+
+        public static string CleanParameterName(string input)
+        {
+            return CleanName(ToCamelCase(input));
+        }
 
     }
 }
