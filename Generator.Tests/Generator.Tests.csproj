@@ -25,4 +25,10 @@
 		<ProjectReference Include="..\SchemaGenerator\Generator.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Samples\HoneybeeSchema\" />
+	  <Folder Include="Samples\DragonflySchema\" />
+	  <Folder Include="Samples\ModelEditorRevitSDK\" />
+	</ItemGroup>
+
 </Project>
