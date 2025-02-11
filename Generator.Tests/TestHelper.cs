@@ -1,8 +1,8 @@
 ﻿namespace Generator.Tests
 {
-    public static class Helper
+    public static class TestHelper
     {
-        static string _dll = typeof(Helper).Assembly.Location;
+        static string _dll = typeof(TestHelper).Assembly.Location;
         static string _projectDir = _dll.Substring(0, _dll.LastIndexOf("bin"));
 
         public static string ProjectDir => _projectDir;

@@ -15,7 +15,7 @@ namespace Generator.Tests.CSharp
         public void Setup()
         {
 
-            var jsonFile = Path.Combine(Helper.HoneybeeDir, "model_inheritance.json");
+            var jsonFile = Path.Combine(TestHelper.HoneybeeDir, "model_inheritance.json");
 
             var json = File.ReadAllText(jsonFile);
             doc = OpenApiDocument.FromJsonAsync(json).Result;
@@ -78,7 +78,7 @@ namespace Generator.Tests.CSharp
         [Test]
         public void TestMapper()
         {
-            var mapper = Path.Combine(Helper.HoneybeeDir, "model_mapper.json");
+            var mapper = Path.Combine(TestHelper.HoneybeeDir, "model_mapper.json");
 
             var interfaces = GenInterface.ReadJson(mapper);
             var namespece = "honeybee_schema.energy.hvac.doas";
