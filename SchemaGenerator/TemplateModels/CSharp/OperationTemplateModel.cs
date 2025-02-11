@@ -11,6 +11,7 @@ public class OperationTemplateModel
 {
     public string MethodName { get; set; }
     public bool HasReturn { get; set; }
+    public bool HasParameter { get; set; }
 
     public string ReturnDoc { get; set; }
 
@@ -33,6 +34,7 @@ public class OperationTemplateModel
             .Select(_ => _.Value.Schema)
             .Select(_ => new PropertyTemplateModel(_.Title, _, requestBody.IsRequired, false))?
             .ToList();
+        HasParameter = (Params?.Any()).GetValueOrDefault();
 
         var returnObj = operation.Responses["200"]?.Content?.FirstOrDefault().Value?.Schema; // Successful Response
         ReturnType = new PropertyTemplateModel(name, returnObj, false, false);
@@ -46,6 +48,8 @@ public class OperationTemplateModel
         {
             ReturnTypeName = "void";
         }
+
+        HasReturn = ReturnTypeName != "void";
 
     }
 

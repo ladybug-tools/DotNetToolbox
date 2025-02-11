@@ -65,29 +65,44 @@ public class GenCsProcessor : Generator
         var srcDir = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(rootDir), "src", _sdkName, "Path");
         Directory.CreateDirectory(srcDir);
 
-        var m = new ProcessorTemplateModel(doc);
+        var m = new ProcessorTemplateModel(doc, "MessageProcessor");
         ProcessorTemplateModel.SDKName = _sdkName;
-        m.InterfaceName = "IProcessor";
-        var file = GenProcessor(templateDir, m, outputDir, ".cs");
+
+        // generate processor interface
+        var file = GenProcessorInterface(templateDir, m, outputDir);
         // copy to src dir
         var targetSrcTs = System.IO.Path.Combine(srcDir, System.IO.Path.GetFileName(file));
         System.IO.File.Copy(file, targetSrcTs, true);
-        Console.WriteLine($"Generated file is added as {targetSrcTs}");
+        Console.WriteLine($"Generated {m.InterfaceName} is added as {targetSrcTs}");
 
+
+        // generate processor class
+        var classfile = GenProcessorClass(templateDir, m, outputDir);
+        // copy to src dir
+        var targetSrcClass = System.IO.Path.Combine(srcDir, System.IO.Path.GetFileName(classfile));
+        System.IO.File.Copy(classfile, targetSrcClass, true);
+        Console.WriteLine($"Generated {m.ClassName} is added as {targetSrcClass}");
 
     }
 
-    private static string GenProcessor(string templateDir, ProcessorTemplateModel model, string outputDir, string fileExt = ".cs")
+    private static string GenProcessorClass(string templateDir, ProcessorTemplateModel model, string outputDir, string fileExt = ".cs")
     {
-        var templateSource = File.ReadAllText(Path.Combine(templateDir, "Interface.Processor.liquid"), System.Text.Encoding.UTF8);
+        var templateSource = File.ReadAllText(Path.Combine(templateDir, "MessageProcessor.liquid"), System.Text.Encoding.UTF8);
         var code = Gen(templateSource, model);
-        var file = System.IO.Path.Combine(outputDir, $"{model.InterfaceName}{fileExt}");
+        var file = System.IO.Path.Combine(outputDir, $"{model.ClassName}{fileExt}");
         System.IO.File.WriteAllText(file, code, System.Text.Encoding.UTF8);
         return file;
     }
 
 
-
+    private static string GenProcessorInterface(string templateDir, ProcessorTemplateModel model, string outputDir)
+    {
+        var templateSource = File.ReadAllText(Path.Combine(templateDir, "Interface.Processor.liquid"), System.Text.Encoding.UTF8);
+        var code = Gen(templateSource, model);
+        var file = System.IO.Path.Combine(outputDir, $"{model.InterfaceName}.cs");
+        System.IO.File.WriteAllText(file, code, System.Text.Encoding.UTF8);
+        return file;
+    }
 }
 
 
