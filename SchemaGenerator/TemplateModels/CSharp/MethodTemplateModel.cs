@@ -7,27 +7,14 @@ using TemplateModels.Base;
 
 namespace TemplateModels.CSharp;
 
-public class OperationTemplateModel
+public class MethodTemplateModel: MethodTemplateModelBase
 {
-    public string MethodName { get; set; }
-    public bool HasReturn { get; set; }
-    public bool HasParameter { get; set; }
-
-    public string ReturnDoc { get; set; }
-
-    public string Summary { get; set; }
-    public string Document { get; set; }
-
-    public string ReturnTypeName { get; set; } // void or type name
     public PropertyTemplateModel ReturnType { get; set; }
     public List<PropertyTemplateModel> Params { get; set; }
 
-    public OperationTemplateModel(string name, OpenApiPathItem openApi)
+    public MethodTemplateModel(string name, OpenApiPathItem openApi):base(name, openApi)
     {
-        this.MethodName = Helper.CleanMethodName(name);
         var operation = openApi.First().Value;
-        this.Summary = operation.Summary;
-        this.Document = operation.Description;
 
         var requestBody = operation.RequestBody;
         Params = requestBody?.Content?
