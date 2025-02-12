@@ -5,14 +5,13 @@ using NJsonSchema;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Diagnostics;
 
 namespace TemplateModels.TypeScript;
 
 public class PropertyTemplateModel : PropertyTemplateModelBase
 {
-
+    public string TsPropertyName { get; set; }
+    public string TsParameterName { get; set; }
 
     public string ConvertToJavaScriptCode { get; set; } // for TS: property value to JS object
     public string ConvertToClassCode { get; set; } // for TS: JSON object to class property
@@ -30,7 +29,12 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
     public bool HasTransformDecorator => !string.IsNullOrWhiteSpace(TransformDecorator);
     public string TransformDecorator { get; set; }
 
-    public PropertyTemplateModel(string name, JsonSchemaProperty json) : base(name, json)
+
+    public PropertyTemplateModel(string name, JsonSchemaProperty json) : this(name, json, json.IsRequired, json.IsReadOnly)
+    {
+    }
+
+    public PropertyTemplateModel(string name, JsonSchema json, bool isRequired, bool isReadOnly) : base(name, json, isRequired, isReadOnly)
     {
         // get default value for property for the current client
         DefaultCodeFormat = ConvertTsDefaultValue(json);
@@ -38,13 +42,19 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
         // check types
         Type = GetTypeScriptType(json, AddTsImportTypes);
 
+        PropertyName = string.IsNullOrEmpty(PropertyName) ? this.Type : PropertyName;
+        TsParameterName = Helper.CleanParameterName(PropertyName);
+        TsPropertyName = Helper.CleanPropertyName(PropertyName);
+        Description = String.IsNullOrEmpty(Description) ? TsPropertyName : Description;
+
         ConvertToJavaScriptCode = $"data[\"{PropertyName}\"] = this.{PropertyName};";
         ConvertToClassCode = $"this.{PropertyName} = obj.{PropertyName};";
         //validation decorators
-        ValidationDecorators = GetValidationDecorators(json);
+        ValidationDecorators = GetValidationDecorators(json, isRequired: isRequired);
 
         // get @Transform
         TransformDecorator = GetTransform(json, false);
+
 
     }
     public static string GetTransform(JsonSchema json, bool isArray)
@@ -166,13 +176,13 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
         {"Boolean", "boolean" }
     };
 
-    private static List<string> GetValidationDecorators(JsonSchema json, bool isArrayItem)
+    private static List<string> GetValidationDecorators(JsonSchema json, bool isArrayItem, bool isRequired)
     {
         var result = new List<string>();
         if (json.IsArray)
         {
             var arrayItem = json.Item;
-            var decos = GetValidationDecorators(arrayItem, true);
+            var decos = GetValidationDecorators(arrayItem, isArrayItem: true, isRequired: isRequired);
 
             result.Add("@IsArray({ each: true })"); // Ensures each item in the array is also an array.
             result.Add("@ValidateNested({each: true })");// Ensures each item in the array is validated as a nested object.
@@ -224,14 +234,14 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
 
         return result;
     }
-    public static List<string> GetValidationDecorators(JsonSchemaProperty json)
+    public static List<string> GetValidationDecorators(JsonSchema json, bool isRequired)
     {
         var result = new List<string>();
         if (json.IsArray)
         {
             result.Add("@IsArray()");
             var arrayItem = json.Item;
-            var decos = GetValidationDecorators(arrayItem, isArrayItem: true);
+            var decos = GetValidationDecorators(arrayItem, isArrayItem: true, isRequired: isRequired);
 
             if (arrayItem.IsArray)
             {
@@ -257,11 +267,11 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
         }
         else
         {
-            var decos = GetValidationDecorators(json, isArrayItem: false);
+            var decos = GetValidationDecorators(json, isArrayItem: false, isRequired: isRequired);
             result.AddRange(decos);
         }
 
-        if (json.IsRequired)
+        if (isRequired)
         {
             result.Add($"@IsDefined()");
         }
@@ -303,7 +313,7 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
         TsImports.Add(type);
     }
 
-    private static string ConvertTsDefaultValue(JsonSchemaProperty prop)
+    private static string ConvertTsDefaultValue(JsonSchema prop)
     {
         var defaultValue = prop.Default;
         var defaultCodeFormat = string.Empty;

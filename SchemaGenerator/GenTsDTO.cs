@@ -76,7 +76,7 @@ public class GenTsDTO : Generator
         var tsTemplate = System.IO.Path.Combine(templateDir, TemplateModels.Helper.Language.ToString());
         var sc = doc.Components.Schemas;
         var classModels = new List<ClassTemplateModel>();
-        var srcDir = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(rootDir), "src", "TypescriptSDK", "models");
+        var srcDir = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(rootDir), "src", $"{TemplateModels.Helper.Language}SDK", "src", "models");
         if (System.IO.Directory.Exists(srcDir))
             System.IO.Directory.Delete(srcDir, true);
         System.IO.Directory.CreateDirectory(srcDir);
