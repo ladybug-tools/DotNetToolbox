@@ -9,16 +9,12 @@ namespace Generator.Tests.TypeScript
     public class HoneybeeSchemaTests
     {
 
-        static string workingDir = Environment.CurrentDirectory;
-        static string rootDir = workingDir.Substring(0, workingDir.IndexOf(".generator"));
         static OpenApiDocument doc = null;
         [SetUp]
         public void Setup()
         {
 
-            Console.WriteLine($"Current working dir: {workingDir}");
-            var docDic = Path.Combine(rootDir, ".openapi-docs");
-            var jsonFile = Path.Combine(docDic, "model_inheritance.json");
+            var jsonFile = Path.Combine(TestHelper.HoneybeeDir, "model_inheritance.json");
 
             var json = File.ReadAllText(jsonFile);
             doc = OpenApiDocument.FromJsonAsync(json).Result;

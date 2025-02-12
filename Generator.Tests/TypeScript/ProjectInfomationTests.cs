@@ -8,17 +8,12 @@ namespace Generator.Tests.TypeScript
 {
     public class ProjectInfomationTests
     {
-
-        static string workingDir = Environment.CurrentDirectory;
-        static string rootDir = workingDir.Substring(0, workingDir.IndexOf("src"));
         static OpenApiDocument doc = null;
         [SetUp]
         public void Setup()
         {
 
-            Console.WriteLine($"Current working dir: {workingDir}");
-            var docDic = Path.Combine(rootDir, ".openapi-docs");
-            var jsonFile = Path.Combine(docDic, "project-information_inheritance.json");
+            var jsonFile = Path.Combine(TestHelper.HoneybeeDir, "project-information_inheritance.json");
 
             var json = File.ReadAllText(jsonFile);
             doc = OpenApiDocument.FromJsonAsync(json).Result;
@@ -73,8 +68,7 @@ namespace Generator.Tests.TypeScript
             Assert.That(classModel.DerivedClasses.Count, Is.GreaterThan(2));
             //var prop = json.ActualProperties.FirstOrDefault();
 
-            var templateDir = Path.Combine(rootDir, ".nswag-generator\\Templates\\TypeScript");
-            var templateSource = File.ReadAllText(Path.Combine(templateDir, "Class2.liquid"), System.Text.Encoding.UTF8);
+            var templateSource = File.ReadAllText(Path.Combine(TestHelper.HoneybeeDir, "Class2.liquid"), System.Text.Encoding.UTF8);
 
             var code = GenTsDTO.Gen(templateSource, classModel);
 
