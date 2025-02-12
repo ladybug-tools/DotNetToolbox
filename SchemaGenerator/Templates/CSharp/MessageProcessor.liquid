@@ -18,6 +18,12 @@ namespace {{ NameSpaceName }}
             }
         }
 
+        public static void MessageReceived(string arg, Action<object> returnAction, Adapter adapter)
+        {
+            MessageProcessor.Adapter = adapter;
+            MessageProcessor.Instance.MessageReceived(arg, returnAction);
+        }
+
         public void MessageReceived(string arg, Action<object> returnAction)
         {
             MessageBus msgBus = null;
