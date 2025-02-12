@@ -37,7 +37,18 @@ public partial class Generator
 
         System.IO.Directory.CreateDirectory(outputDir);
 
-        var supportedArgs = new string[] { "--download", "--genTsModel", "--genCsModel", "--genCsProcessor", "--genCsInterface", "--updateVersion", "--config" };
+        var supportedArgs = new string[] 
+        { 
+            "--download", 
+            "--genTsModel", 
+            "--genCsModel", 
+            "--genCsProcessor", 
+            "--genTsProcessor", 
+            "--genCsInterface", 
+            "--updateVersion",
+            "--config" 
+        };
+
         if (args == null || !args.Any())
             args = supportedArgs;
 
@@ -83,6 +94,10 @@ public partial class Generator
         if (args.Contains("--genCsProcessor"))
         {
             GenCsProcessor.Execute();
+        }
+        if (args.Contains("--genTsProcessor"))
+        {
+            GenTsProcessor.Execute();
         }
 
         //Generate Interfaces

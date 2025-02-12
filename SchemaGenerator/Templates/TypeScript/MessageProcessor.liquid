@@ -1,0 +1,31 @@
+﻿// Auto-generated
+
+import { MessageParamHelper, MessageParam, MessageBusHelper, ProcessorHelper } from "pollination-browser-message-handler";
+{% if HasTsImports -%}
+{% for Import in TsImports -%}
+import { {{ Import.Name }} } from "{{ Import.From }}";
+{% endfor -%}
+{% endif -%}
+{% for method in Methods %} {%- assign skipComma = true %}
+
+
+export const {{method.MethodName}} = async ({%- for param in method.Params -%}{%- if skipComma %}{%- assign skipComma = false %}{% else %}, {% endif %}{{param.TsParameterName}}: {{param.Type}}{%if param.HasDefault %} = {{param.DefaultCodeFormat}}{% endif %}{% endfor %}): Promise<{{method.ReturnTypeName}}> => {
+
+  const params: MessageParam[] = [{% for param in method.Params %}{%- if param.HasDefault == false %}
+    MessageParamHelper.MessageParam("{{param.TsParameterName}}", {{param.TsParameterName}}),{% endif %}{% endfor %}
+  ];
+  {%- for param in method.Params -%}  
+  {%- if param.HasDefault -%}
+  if({{param.TsParameterName}})params.push(MessageParamHelper.MessageParam("{{param.TsParameterName}}", {{param.TsParameterName}}));
+  {%- endif -%}
+  {%- endfor -%}
+
+  const bus = MessageBusHelper.MessageBus("{{method.MethodName}}", params);
+  {%- if method.HasReturn -%}
+  const done: {{method.ReturnTypeName}} = {% if method.NeedReturnTypeConverter %}ConvertTo{{method.ReturnTypeName}}(await ProcessorHelper.waitForExecution(bus));{% else %}await ProcessorHelper.waitForExecution(bus);{% endif %}
+  return done;
+  {%- else -%}
+  await ProcessorHelper.waitForExecution(bus);
+  {%- endif -%}
+};
+{% endfor %}
