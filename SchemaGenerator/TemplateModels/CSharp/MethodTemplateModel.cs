@@ -1,8 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
-using NSwag;
+﻿using NSwag;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Linq;
 using TemplateModels.Base;
 
 namespace TemplateModels.CSharp;
@@ -17,10 +15,9 @@ public class MethodTemplateModel: MethodTemplateModelBase
         var operation = openApi.First().Value;
 
         var requestBody = operation.RequestBody;
-        Params = requestBody?.Content?
-            .Select(_ => _.Value.Schema)
-            .Select(_ => new PropertyTemplateModel(_.Title, _, requestBody.IsRequired, false))?
-            .ToList();
+        Params = ParamSchemas
+            .Select(_ => new PropertyTemplateModel(_.name, _.schema, _.required, false))?
+            .ToList() ?? new List<PropertyTemplateModel>();
         HasParameter = (Params?.Any()).GetValueOrDefault();
 
         var returnObj = operation.Responses["200"]?.Content?.FirstOrDefault().Value?.Schema; // Successful Response

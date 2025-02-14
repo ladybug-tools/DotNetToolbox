@@ -39,4 +39,9 @@ public class PropertyTemplateModelBase
         IsArray = json.IsArray;
      
     }
+
+    public override string ToString()
+    {
+        return PropertyName;
+    }
 }

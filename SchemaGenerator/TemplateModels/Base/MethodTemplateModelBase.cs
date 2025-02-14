@@ -1,4 +1,5 @@
 ﻿using NSwag;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace TemplateModels.Base;
@@ -14,10 +15,12 @@ public class MethodTemplateModelBase
     public string Summary { get; set; }
     public string Document { get; set; }
 
-    public string ReturnTypeName { get; set; } // void or type name
+    public string ReturnTypeName { get; set; } 
+    // void or type name
     //public PropertyTemplateModelBase ReturnType { get; set; }
     //public List<PropertyTemplateModelBase> Params { get; set; }
 
+    protected List<(NJsonSchema.JsonSchema schema, bool required, string name)> ParamSchemas { get; } = new List<(NJsonSchema.JsonSchema schema, bool required, string name)>();
     public MethodTemplateModelBase(string name, OpenApiPathItem openApi)
     {
         this.MethodName = Helper.CleanMethodName(name);
@@ -25,7 +28,17 @@ public class MethodTemplateModelBase
         this.Summary = operation.Summary;
         this.Document = operation.Description;
 
+        // all reference and non-reference type parameters
+        if (operation?.ActualParameters != null && operation.ActualParameters.Any())
+            ParamSchemas = operation.ActualParameters
+                .Select(_ => (_.Schema, _.IsRequired, name: _.Kind == OpenApiParameterKind.Body ? _?.Schema?.Title: _.Name))
+                .ToList();
 
+
+    }
+    public override string ToString()
+    {
+        return this.MethodName;
     }
 
 }
