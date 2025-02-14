@@ -11,7 +11,7 @@ namespace {{ NameSpaceName }}
 		/// </summary>{% for param in method.Params %}
 		/// <param name="{{param.CsParameterName}}">{{param.Description}}</param>{% endfor %}
 		/// <returns>{{method.ReturnDoc}}</returns>
-		{{method.ReturnTypeName}} {{method.MethodName}}({% for param in method.Params %}{%- if skipComma %}{%- assign skipComma = false %}{% else %}, {% endif %}{{param.ConstructionParameterCode}} {% endfor %});
+		{{method.ReturnTypeName}} {{method.MethodName}}({% for param in method.Params %}{%- if skipComma %}{%- assign skipComma = false %}{% else %}, {% endif %}{{param.ConstructionParameterCode}}{% endfor %});
 		{% endfor %}
 	}
 

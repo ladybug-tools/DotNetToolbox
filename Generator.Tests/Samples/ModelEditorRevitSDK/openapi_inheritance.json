@@ -3,7 +3,7 @@
   "info": {
     "title": "Pollination Model Editor <> Revit SDK.",
     "description": "Available methods to interact with Revit from Pollination Model Editor.",
-    "version": "0.0.3"
+    "version": "0.0.1"
   },
   "paths": {
     "/": {
@@ -179,10 +179,375 @@
           }
         }
       }
+    },
+    "/get-phases/": {
+      "get": {
+        "tags": [
+          "Revit Document"
+        ],
+        "summary": "Get Phases",
+        "description": "Get project phases from the current Revit model",
+        "operationId": "get_phases_get_phases__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Get Phases Get Phases  Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RevitPhase"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/get-levels/": {
+      "get": {
+        "tags": [
+          "Revit Document"
+        ],
+        "summary": "Get Levels",
+        "description": "Get project levels from the current Revit model",
+        "operationId": "get_levels_get_levels__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Get Levels Get Levels  Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RevitLevel"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/get-level-element-count/": {
+      "post": {
+        "tags": [
+          "Revit Document"
+        ],
+        "summary": "Get Level Element Count",
+        "description": "Get counts for Revit Room/Space/Area from a level",
+        "operationId": "get_level_element_count_get_level_element_count__post",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Level Uid",
+              "type": "string"
+            },
+            "name": "level_uid",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevitLevelElementCount"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/create-level-view/": {
+      "post": {
+        "tags": [
+          "Revit Document"
+        ],
+        "summary": "Create Level View",
+        "description": "Create a plan view for a Revit level",
+        "operationId": "create_level_view_create_level_view__post",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Level Uid",
+              "type": "string"
+            },
+            "name": "level_uid",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Create Level View Create Level View  Post",
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "SetpointAbridged": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/IDdEnergyBaseModel"
+          },
+          {
+            "type": "object",
+            "required": [
+              "cooling_schedule",
+              "heating_schedule"
+            ],
+            "properties": {
+              "cooling_schedule": {
+                "title": "Cooling Schedule",
+                "description": "Identifier of the schedule for the cooling setpoint. The values in this schedule should be temperature in [C].",
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              "heating_schedule": {
+                "title": "Heating Schedule",
+                "description": "Identifier of the schedule for the heating setpoint. The values in this schedule should be temperature in [C].",
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": {
+                "title": "Type",
+                "default": "SetpointAbridged",
+                "pattern": "^SetpointAbridged$",
+                "type": "string",
+                "readOnly": true
+              },
+              "humidifying_schedule": {
+                "title": "Humidifying Schedule",
+                "description": "Identifier of the schedule for the humidification setpoint. The values in this schedule should be in [%].",
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              "dehumidifying_schedule": {
+                "title": "Dehumidifying Schedule",
+                "description": "Identifier of the schedule for the dehumidification setpoint. The values in this schedule should be in [%].",
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              "setpoint_cutout_difference": {
+                "title": "Setpoint Cutout Difference",
+                "description": "An optional positive number for the temperature difference between the cutout temperature and the setpoint temperature. Specifying a non-zero number here is useful for modeling the throttling range associated with a given setup of setpoint controls and HVAC equipment. Throttling ranges describe the range where a zone is slightly over-cooled or over-heated beyond the thermostat setpoint. They are used to avoid situations where HVAC systems turn on only to turn off a few minutes later, thereby wearing out the parts of mechanical systems faster. They can have a minor impact on energy consumption and can often have significant impacts on occupant thermal comfort, though using the default value of zero will often yield results that are close enough when trying to estimate the annual heating/cooling energy use. Specifying a value of zero effectively assumes that the system will turn on whenever conditions are outside the setpoint range and will cut out as soon as the setpoint is reached.",
+                "default": 0,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "SetpointAbridged",
+        "description": "Used to specify information about the setpoint schedule.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "ModuleType": {
+        "title": "ModuleType",
+        "description": "An enumeration.",
+        "enum": [
+          "Standard",
+          "Premium",
+          "ThinFilm"
+        ],
+        "type": "string"
+      },
+      "MountingType": {
+        "title": "MountingType",
+        "description": "An enumeration.",
+        "enum": [
+          "FixedOpenRack",
+          "FixedRoofMounted",
+          "OneAxis",
+          "OneAxisBacktracking",
+          "TwoAxis"
+        ],
+        "type": "string"
+      },
+      "PVProperties": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EnergyBaseModel"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "title": "Type",
+                "default": "PVProperties",
+                "pattern": "^PVProperties$",
+                "type": "string",
+                "readOnly": true
+              },
+              "rated_efficiency": {
+                "title": "Rated Efficiency",
+                "description": "A number between 0 and 1 for the rated nameplate efficiency of the photovoltaic solar cells under standard test conditions (STC). Standard test conditions are 1,000 Watts per square meter solar irradiance, 25 degrees C cell temperature, and ASTM G173-03 standard spectrum. Nameplate efficiencies reported by manufacturers are typically under STC. Standard poly- or mono-crystalline silicon modules tend to have rated efficiencies in the range of 14-17%. Premium high efficiency mono-crystalline silicon modules with anti-reflective coatings can have efficiencies in the range of 18-20%. Thin film photovoltaic modules typically have efficiencies of 11% or less. (Default: 0.15 for standard silicon solar cells).",
+                "default": 0.15,
+                "exclusiveMinimum": 0,
+                "exclusiveMaximum": 1,
+                "type": "number",
+                "format": "double"
+              },
+              "active_area_fraction": {
+                "title": "Active Area Fraction",
+                "description": "The fraction of the parent Shade geometry that is covered in active solar cells. This fraction includes the difference between the PV panel (aka. PV module) area and the active cells within the panel as well as any losses for how the (typically rectangular) panels can be arranged on the Shade geometry. When the parent Shade geometry represents just the solar panels, this fraction is typically around 0.9 given that the framing elements of the panel reduce the overall active area. (Default: 0.9, assuming parent Shade geometry represents only the PV panel geometry).",
+                "default": 0.9,
+                "exclusiveMinimum": 0,
+                "maximum": 1,
+                "type": "number",
+                "format": "double"
+              },
+              "module_type": {
+                "description": "Text to indicate the type of solar module. This is used to determine the temperature coefficients used in the simulation of the photovoltaic modules. When the rated_efficiency is between 12-18%, the Standard type is typically most appropriate. When the rated_efficiency is greater than 18%, the Premium type is likely more appropriate. When the rated_efficiency is less than 12%, this likely refers to a case where the ThinFilm module type is most appropriate.",
+                "default": "Standard",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ModuleType"
+                  }
+                ]
+              },
+              "mounting_type": {
+                "description": "Text to indicate the type of mounting and/or tracking used for the photovoltaic array. Note that the OneAxis options have an axis of rotation that is determined by the azimuth of the parent Shade geometry. Also note that, in the case of one or two axis tracking, shadows on the (static) parent Shade geometry still reduce the electrical output, enabling the simulation to account for large context geometry casting shadows on the array. However, the effects of smaller detailed shading may be improperly accounted for and self shading of the dynamic panel geometry is only accounted for via the tracking_ground_coverage_ratio property on this object. FixedOpenRack refers to ground or roof mounting where the air flows freely. FixedRoofMounted refers to mounting flush with the roof with limited air flow. OneAxis refers to a fixed tilt and azimuth, which define an axis of rotation. OneAxisBacktracking is the same as OneAxis but with controls to reduce self-shade at low sun angles. TwoAxis refers to a dynamic tilt and azimuth that track the sun.",
+                "default": "FixedOpenRack",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/MountingType"
+                  }
+                ]
+              },
+              "system_loss_fraction": {
+                "title": "System Loss Fraction",
+                "description": "A number between 0 and 1 for the fraction of the electricity output lost due to factors other than EPW weather conditions, panel efficiency/type, active area, mounting, and inverter conversion from DC to AC. Factors that should be accounted for in this input include soiling, snow, wiring losses, electrical connection losses, manufacturer defects/tolerances/mismatch in cell characteristics, losses from power grid availability, and losses due to age or light-induced degradation. Losses from these factors tend to be between 10-20% but can vary widely depending on the installation, maintenance and the grid to which the panels are connected..",
+                "default": 0.14,
+                "minimum": 0,
+                "maximum": 1,
+                "type": "number",
+                "format": "double"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "PVProperties",
+        "description": "Base class for all objects requiring a valid EnergyPlus identifier.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "ServiceHotWaterAbridged": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/IDdEnergyBaseModel"
+          },
+          {
+            "type": "object",
+            "required": [
+              "flow_per_area",
+              "schedule"
+            ],
+            "properties": {
+              "flow_per_area": {
+                "title": "Flow Per Area",
+                "description": "Number for the total volume flow rate of water per unit area of floor [L/h-m2].",
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              },
+              "schedule": {
+                "title": "Schedule",
+                "description": "Identifier of the schedule for the hot water use over the course of the year. The type of this schedule should be Fractional and the fractional values will get multiplied by the flow_per_area to yield a complete water usage profile.",
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": {
+                "title": "Type",
+                "default": "ServiceHotWaterAbridged",
+                "pattern": "^ServiceHotWaterAbridged$",
+                "type": "string",
+                "readOnly": true
+              },
+              "target_temperature": {
+                "title": "Target Temperature",
+                "description": "Number for the target temperature of water out of the tap (C). This the temperature after hot water has been mixed with cold water from the water mains. The default is 60C, which essentially assumes that the flow_per_area on this object is only for water straight out of the water heater.",
+                "default": 60,
+                "exclusiveMinimum": 0,
+                "type": "number",
+                "format": "double"
+              },
+              "sensible_fraction": {
+                "title": "Sensible Fraction",
+                "description": "A number between 0 and 1 for the fraction of the total hot water load given off as sensible heat in the zone.",
+                "default": 0.2,
+                "minimum": 0,
+                "maximum": 1,
+                "type": "number",
+                "format": "double"
+              },
+              "latent_fraction": {
+                "title": "Latent Fraction",
+                "description": "A number between 0 and 1 for the fraction of the total hot water load that is latent.",
+                "default": 0.05,
+                "minimum": 0,
+                "maximum": 1,
+                "type": "number",
+                "format": "double"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "ServiceHotWaterAbridged",
+        "description": "Base class for all objects requiring an EnergyPlus identifier and user_data.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
       "Plane": {
         "allOf": [
           {
@@ -311,215 +676,6 @@
         ],
         "title": "Face3D",
         "description": "A single planar face in 3D space.",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "Autocalculate": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "type": {
-                "title": "Type",
-                "default": "Autocalculate",
-                "pattern": "^Autocalculate$",
-                "type": "string",
-                "readOnly": true
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "title": "Autocalculate",
-        "description": "Base class for all objects that are not extensible with additional keys.\n\nThis effectively includes all objects except for the Properties classes\nthat are assigned to geometry objects.",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "Outdoors": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "type": {
-                "title": "Type",
-                "default": "Outdoors",
-                "pattern": "^Outdoors$",
-                "type": "string",
-                "readOnly": true
-              },
-              "sun_exposure": {
-                "title": "Sun Exposure",
-                "description": "A boolean noting whether the boundary is exposed to sun.",
-                "default": true,
-                "type": "boolean"
-              },
-              "wind_exposure": {
-                "title": "Wind Exposure",
-                "description": "A boolean noting whether the boundary is exposed to wind.",
-                "default": true,
-                "type": "boolean"
-              },
-              "view_factor": {
-                "title": "View Factor",
-                "description": "A number for the view factor to the ground. This can also be an Autocalculate object to have the view factor automatically calculated.",
-                "default": {
-                  "type": "Autocalculate"
-                },
-                "anyOf": [
-                  {
-                    "$ref": "#/components/schemas/Autocalculate"
-                  },
-                  {
-                    "type": "number",
-                    "minimum": 0,
-                    "maximum": 1
-                  }
-                ]
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "title": "Outdoors",
-        "description": "Base class for all objects that are not extensible with additional keys.\n\nThis effectively includes all objects except for the Properties classes\nthat are assigned to geometry objects.",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "Surface": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "boundary_condition_objects": {
-                "title": "Boundary Condition Objects",
-                "description": "A list of up to 3 object identifiers that are adjacent to this one. The first object is always the one that is immediately adjacent and is of the same object type (Face, Aperture, Door). When this boundary condition is applied to a Face, the second object in the tuple will be the parent Room of the adjacent object. When the boundary condition is applied to a sub-face (Door or Aperture), the second object will be the parent Face of the adjacent sub-face and the third object will be the parent Room of the adjacent sub-face.",
-                "minItems": 2,
-                "maxItems": 3,
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "type": {
-                "title": "Type",
-                "default": "Surface",
-                "pattern": "^Surface$",
-                "type": "string",
-                "readOnly": true
-              }
-            },
-            "required": [
-              "boundary_condition_objects"
-            ],
-            "additionalProperties": false
-          }
-        ],
-        "title": "Surface",
-        "description": "Base class for all objects that are not extensible with additional keys.\n\nThis effectively includes all objects except for the Properties classes\nthat are assigned to geometry objects.",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "ModuleType": {
-        "title": "ModuleType",
-        "description": "An enumeration.",
-        "enum": [
-          "Standard",
-          "Premium",
-          "ThinFilm"
-        ],
-        "type": "string"
-      },
-      "MountingType": {
-        "title": "MountingType",
-        "description": "An enumeration.",
-        "enum": [
-          "FixedOpenRack",
-          "FixedRoofMounted",
-          "OneAxis",
-          "OneAxisBacktracking",
-          "TwoAxis"
-        ],
-        "type": "string"
-      },
-      "PVProperties": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/EnergyBaseModel"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "type": {
-                "title": "Type",
-                "default": "PVProperties",
-                "pattern": "^PVProperties$",
-                "type": "string",
-                "readOnly": true
-              },
-              "rated_efficiency": {
-                "title": "Rated Efficiency",
-                "description": "A number between 0 and 1 for the rated nameplate efficiency of the photovoltaic solar cells under standard test conditions (STC). Standard test conditions are 1,000 Watts per square meter solar irradiance, 25 degrees C cell temperature, and ASTM G173-03 standard spectrum. Nameplate efficiencies reported by manufacturers are typically under STC. Standard poly- or mono-crystalline silicon modules tend to have rated efficiencies in the range of 14-17%. Premium high efficiency mono-crystalline silicon modules with anti-reflective coatings can have efficiencies in the range of 18-20%. Thin film photovoltaic modules typically have efficiencies of 11% or less. (Default: 0.15 for standard silicon solar cells).",
-                "default": 0.15,
-                "exclusiveMinimum": 0,
-                "exclusiveMaximum": 1,
-                "type": "number",
-                "format": "double"
-              },
-              "active_area_fraction": {
-                "title": "Active Area Fraction",
-                "description": "The fraction of the parent Shade geometry that is covered in active solar cells. This fraction includes the difference between the PV panel (aka. PV module) area and the active cells within the panel as well as any losses for how the (typically rectangular) panels can be arranged on the Shade geometry. When the parent Shade geometry represents just the solar panels, this fraction is typically around 0.9 given that the framing elements of the panel reduce the overall active area. (Default: 0.9, assuming parent Shade geometry represents only the PV panel geometry).",
-                "default": 0.9,
-                "exclusiveMinimum": 0,
-                "maximum": 1,
-                "type": "number",
-                "format": "double"
-              },
-              "module_type": {
-                "description": "Text to indicate the type of solar module. This is used to determine the temperature coefficients used in the simulation of the photovoltaic modules. When the rated_efficiency is between 12-18%, the Standard type is typically most appropriate. When the rated_efficiency is greater than 18%, the Premium type is likely more appropriate. When the rated_efficiency is less than 12%, this likely refers to a case where the ThinFilm module type is most appropriate.",
-                "default": "Standard",
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/ModuleType"
-                  }
-                ]
-              },
-              "mounting_type": {
-                "description": "Text to indicate the type of mounting and/or tracking used for the photovoltaic array. Note that the OneAxis options have an axis of rotation that is determined by the azimuth of the parent Shade geometry. Also note that, in the case of one or two axis tracking, shadows on the (static) parent Shade geometry still reduce the electrical output, enabling the simulation to account for large context geometry casting shadows on the array. However, the effects of smaller detailed shading may be improperly accounted for and self shading of the dynamic panel geometry is only accounted for via the tracking_ground_coverage_ratio property on this object. FixedOpenRack refers to ground or roof mounting where the air flows freely. FixedRoofMounted refers to mounting flush with the roof with limited air flow. OneAxis refers to a fixed tilt and azimuth, which define an axis of rotation. OneAxisBacktracking is the same as OneAxis but with controls to reduce self-shade at low sun angles. TwoAxis refers to a dynamic tilt and azimuth that track the sun.",
-                "default": "FixedOpenRack",
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/MountingType"
-                  }
-                ]
-              },
-              "system_loss_fraction": {
-                "title": "System Loss Fraction",
-                "description": "A number between 0 and 1 for the fraction of the electricity output lost due to factors other than EPW weather conditions, panel efficiency/type, active area, mounting, and inverter conversion from DC to AC. Factors that should be accounted for in this input include soiling, snow, wiring losses, electrical connection losses, manufacturer defects/tolerances/mismatch in cell characteristics, losses from power grid availability, and losses due to age or light-induced degradation. Losses from these factors tend to be between 10-20% but can vary widely depending on the installation, maintenance and the grid to which the panels are connected..",
-                "default": 0.14,
-                "minimum": 0,
-                "maximum": 1,
-                "type": "number",
-                "format": "double"
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "title": "PVProperties",
-        "description": "Base class for all objects requiring a valid EnergyPlus identifier.",
         "discriminator": {
           "propertyName": "type"
         }
@@ -782,6 +938,361 @@
           "propertyName": "type"
         }
       },
+      "ExteriorFaceType": {
+        "title": "ExteriorFaceType",
+        "description": "An enumeration.",
+        "enum": [
+          "Wall",
+          "Roof",
+          "Floor",
+          "All"
+        ],
+        "type": "string"
+      },
+      "ExteriorFaceGridParameter": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/_GridParameterBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "title": "Type",
+                "default": "ExteriorFaceGridParameter",
+                "pattern": "^ExteriorFaceGridParameter$",
+                "type": "string",
+                "readOnly": true
+              },
+              "offset": {
+                "title": "Offset",
+                "description": "A number for how far to offset the grid from the Faces. (Default: 0.1, suitable for Models in Meters).",
+                "default": 0.1,
+                "type": "number",
+                "format": "double"
+              },
+              "face_type": {
+                "description": "Text to specify the type of face that will be used to generate grids. Note that only Faces with Outdoors boundary conditions will be used, meaning that most Floors will typically be excluded unless they represent the underside of a cantilever.",
+                "default": "Wall",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ExteriorFaceType"
+                  }
+                ]
+              },
+              "punched_geometry": {
+                "title": "Punched Geometry",
+                "description": "A boolean to note whether the punched_geometry of the faces should be used (True) with the areas of sub-faces removed from the grid or the full geometry should be used (False).",
+                "default": false,
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "ExteriorFaceGridParameter",
+        "description": "Instructions for a SensorGrid generated from exterior Faces.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "Autocalculate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "title": "Type",
+                "default": "Autocalculate",
+                "pattern": "^Autocalculate$",
+                "type": "string",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "Autocalculate",
+        "description": "Base class for all objects that are not extensible with additional keys.\n\nThis effectively includes all objects except for the Properties classes\nthat are assigned to geometry objects.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "GriddedSkylightArea": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "skylight_area": {
+                "title": "Skylight Area",
+                "description": "A number for the skylight area in current model units. If this area is larger than the area of the roof that it is applied to, the skylight will fill the parent roof at a 99 percent ratio.",
+                "exclusiveMinimum": 0,
+                "type": "number",
+                "format": "double"
+              },
+              "type": {
+                "title": "Type",
+                "default": "GriddedSkylightArea",
+                "pattern": "^GriddedSkylightArea$",
+                "type": "string",
+                "readOnly": true
+              },
+              "spacing": {
+                "title": "Spacing",
+                "description": "A number for the spacing between the centers of each grid cell. This should be less than a third of the dimension of the Roof geometry if multiple, evenly-spaced skylights are desired. If Autocalculate, a spacing of one third the smaller dimension of the parent Roof will be automatically assumed.",
+                "default": {
+                  "type": "Autocalculate"
+                },
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/Autocalculate"
+                  },
+                  {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  }
+                ]
+              }
+            },
+            "required": [
+              "skylight_area"
+            ],
+            "additionalProperties": false
+          }
+        ],
+        "title": "GriddedSkylightArea",
+        "description": "Gridded skylights defined by an absolute area.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "Surface": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "boundary_condition_objects": {
+                "title": "Boundary Condition Objects",
+                "description": "A list of up to 3 object identifiers that are adjacent to this one. The first object is always the one that is immediately adjacent and is of the same object type (Face, Aperture, Door). When this boundary condition is applied to a Face, the second object in the tuple will be the parent Room of the adjacent object. When the boundary condition is applied to a sub-face (Door or Aperture), the second object will be the parent Face of the adjacent sub-face and the third object will be the parent Room of the adjacent sub-face.",
+                "minItems": 2,
+                "maxItems": 3,
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "type": {
+                "title": "Type",
+                "default": "Surface",
+                "pattern": "^Surface$",
+                "type": "string",
+                "readOnly": true
+              }
+            },
+            "required": [
+              "boundary_condition_objects"
+            ],
+            "additionalProperties": false
+          }
+        ],
+        "title": "Surface",
+        "description": "Base class for all objects that are not extensible with additional keys.\n\nThis effectively includes all objects except for the Properties classes\nthat are assigned to geometry objects.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "RevitLevel": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "title": "Name",
+                "type": "string"
+              },
+              "unique_id": {
+                "title": "Unique Id",
+                "type": "string"
+              },
+              "elevation": {
+                "title": "Elevation",
+                "type": "number",
+                "format": "double"
+              },
+              "type": {
+                "title": "Type",
+                "default": "RevitLevel",
+                "type": "string",
+                "pattern": "^RevitLevel$",
+                "readOnly": true
+              }
+            },
+            "required": [
+              "name",
+              "unique_id",
+              "elevation"
+            ]
+          }
+        ],
+        "title": "RevitLevel",
+        "description": "Revit project's level.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "RadianceSubFaceStateAbridged": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RadianceShadeStateAbridged"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "vmtx_geometry": {
+                "title": "Vmtx Geometry",
+                "description": "A Face3D for the view matrix geometry (default: None).",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Face3D"
+                  }
+                ]
+              },
+              "dmtx_geometry": {
+                "title": "Dmtx Geometry",
+                "description": "A Face3D for the daylight matrix geometry (default: None).",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Face3D"
+                  }
+                ]
+              },
+              "type": {
+                "title": "Type",
+                "default": "RadianceSubFaceStateAbridged",
+                "pattern": "^RadianceSubFaceStateAbridged$",
+                "type": "string",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "RadianceSubFaceStateAbridged",
+        "description": "RadianceSubFaceStateAbridged is an abridged state for a dynamic Aperture or Door.\n    ",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "DoorRadiancePropertiesAbridged": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/_PropertiesBaseAbridged"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "title": "Type",
+                "default": "DoorRadiancePropertiesAbridged",
+                "pattern": "^DoorRadiancePropertiesAbridged$",
+                "type": "string",
+                "readOnly": true
+              },
+              "dynamic_group_identifier": {
+                "title": "Dynamic Group Identifier",
+                "description": "An optional string to note the dynamic group '             'to which the Door is a part of. Doors sharing the same '             'dynamic_group_identifier will have their states change in unison. '             'If None, the Door is assumed to be static. (default: None).",
+                "type": "string"
+              },
+              "states": {
+                "title": "States",
+                "description": "An optional list of abridged states (default: None).",
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/RadianceSubFaceStateAbridged"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "DoorRadiancePropertiesAbridged",
+        "description": "Radiance Properties for Honeybee Door Abridged.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "RoomRadialGridParameter": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RoomGridParameter"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "dir_count": {
+                "title": "Dir Count",
+                "description": "A positive integer for the number of radial directions to be generated around each position.",
+                "default": 8,
+                "exclusiveMinimum": 0,
+                "type": "integer",
+                "format": "int32"
+              },
+              "start_vector": {
+                "title": "Start Vector",
+                "description": "A vector as 3 (x, y, z) values to set the start direction of the generated directions. This can be used to orient the resulting sensors to specific parts of the scene. It can also change the elevation of the resulting directions since this start vector will always be rotated in the XY plane to generate the resulting directions.",
+                "minItems": 3,
+                "maxItems": 3,
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "mesh_radius": {
+                "title": "Mesh Radius",
+                "description": "An optional number to override the radius of the meshes generated around each sensor. If Autocalculate, it will be equal to 45 percent of the grid dimension.",
+                "default": {
+                  "type": "Autocalculate"
+                },
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/Autocalculate"
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              },
+              "type": {
+                "title": "Type",
+                "default": "RoomRadialGridParameter",
+                "pattern": "^RoomRadialGridParameter$",
+                "type": "string",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "RoomRadialGridParameter",
+        "description": "Instructions for a SensorGrid of radial directions around positions from floors.\n\nThis type of sensor grid is particularly helpful for studies of multiple\nview directions, such as imageless glare studies.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
       "VentilationOpening": {
         "allOf": [
           {
@@ -861,238 +1372,6 @@
         ],
         "title": "VentilationOpening",
         "description": "Base class for all objects that are not extensible with additional keys.\n\nThis effectively includes all objects except for the Properties classes\nthat are assigned to geometry objects.",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "ApertureEnergyPropertiesAbridged": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "type": {
-                "title": "Type",
-                "default": "ApertureEnergyPropertiesAbridged",
-                "pattern": "^ApertureEnergyPropertiesAbridged$",
-                "type": "string",
-                "readOnly": true
-              },
-              "construction": {
-                "title": "Construction",
-                "description": "Identifier of a WindowConstruction for the aperture. If None, the construction is set by the parent Room construction_set or the Model global_construction_set.",
-                "maxLength": 100,
-                "minLength": 1,
-                "type": "string"
-              },
-              "vent_opening": {
-                "title": "Vent Opening",
-                "description": "An optional VentilationOpening to specify the operable portion of the Aperture.",
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/VentilationOpening"
-                  }
-                ]
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "title": "ApertureEnergyPropertiesAbridged",
-        "description": "Base class for all objects that are not extensible with additional keys.\n\nThis effectively includes all objects except for the Properties classes\nthat are assigned to geometry objects.",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "RadianceSubFaceStateAbridged": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/RadianceShadeStateAbridged"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "vmtx_geometry": {
-                "title": "Vmtx Geometry",
-                "description": "A Face3D for the view matrix geometry (default: None).",
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/Face3D"
-                  }
-                ]
-              },
-              "dmtx_geometry": {
-                "title": "Dmtx Geometry",
-                "description": "A Face3D for the daylight matrix geometry (default: None).",
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/Face3D"
-                  }
-                ]
-              },
-              "type": {
-                "title": "Type",
-                "default": "RadianceSubFaceStateAbridged",
-                "pattern": "^RadianceSubFaceStateAbridged$",
-                "type": "string",
-                "readOnly": true
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "title": "RadianceSubFaceStateAbridged",
-        "description": "RadianceSubFaceStateAbridged is an abridged state for a dynamic Aperture or Door.\n    ",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "ApertureRadiancePropertiesAbridged": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/_PropertiesBaseAbridged"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "type": {
-                "title": "Type",
-                "default": "ApertureRadiancePropertiesAbridged",
-                "pattern": "^ApertureRadiancePropertiesAbridged$",
-                "type": "string",
-                "readOnly": true
-              },
-              "dynamic_group_identifier": {
-                "title": "Dynamic Group Identifier",
-                "description": "An optional string to note the dynamic group '             'to which the Aperture is a part of. Apertures sharing the same '             'dynamic_group_identifier will have their states change in unison. '             'If None, the Aperture is assumed to be static. (default: None).",
-                "type": "string"
-              },
-              "states": {
-                "title": "States",
-                "description": "An optional list of abridged states (default: None).",
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/RadianceSubFaceStateAbridged"
-                }
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "title": "ApertureRadiancePropertiesAbridged",
-        "description": "Radiance Properties for Honeybee Aperture Abridged.",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "AperturePropertiesAbridged": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "type": {
-                "title": "Type",
-                "default": "AperturePropertiesAbridged",
-                "pattern": "^AperturePropertiesAbridged$",
-                "type": "string",
-                "readOnly": true
-              },
-              "energy": {
-                "$ref": "#/components/schemas/ApertureEnergyPropertiesAbridged"
-              },
-              "radiance": {
-                "$ref": "#/components/schemas/ApertureRadiancePropertiesAbridged"
-              }
-            }
-          }
-        ],
-        "title": "AperturePropertiesAbridged",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "Aperture": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/IDdBaseModel"
-          },
-          {
-            "type": "object",
-            "required": [
-              "geometry",
-              "boundary_condition",
-              "properties"
-            ],
-            "properties": {
-              "geometry": {
-                "title": "Geometry",
-                "description": "Planar Face3D for the geometry.",
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/Face3D"
-                  }
-                ]
-              },
-              "boundary_condition": {
-                "title": "Boundary Condition",
-                "anyOf": [
-                  {
-                    "$ref": "#/components/schemas/Outdoors"
-                  },
-                  {
-                    "$ref": "#/components/schemas/Surface"
-                  }
-                ]
-              },
-              "properties": {
-                "title": "Properties",
-                "description": "Extension properties for particular simulation engines (Radiance, EnergyPlus).",
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/AperturePropertiesAbridged"
-                  }
-                ]
-              },
-              "type": {
-                "title": "Type",
-                "default": "Aperture",
-                "pattern": "^Aperture$",
-                "type": "string",
-                "readOnly": true
-              },
-              "is_operable": {
-                "title": "Is Operable",
-                "description": "Boolean to note whether the Aperture can be opened for ventilation.",
-                "default": false,
-                "type": "boolean"
-              },
-              "indoor_shades": {
-                "title": "Indoor Shades",
-                "description": "Shades assigned to the interior side of this object (eg. window sill, light shelf).",
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/Shade"
-                }
-              },
-              "outdoor_shades": {
-                "title": "Outdoor Shades",
-                "description": "Shades assigned to the exterior side of this object (eg. mullions, louvers).",
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/Shade"
-                }
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "title": "Aperture",
-        "description": "Base class for all objects requiring a identifiers acceptable for all engines.",
         "discriminator": {
           "propertyName": "type"
         }
@@ -1182,16 +1461,7 @@
           "propertyName": "type"
         }
       },
-      "RoomGeometrySource": {
-        "title": "RoomGeometrySource",
-        "description": "Geometry source options for creating PO rooms.",
-        "enum": [
-          "Room",
-          "Space",
-          "Area"
-        ]
-      },
-      "ElementInfo": {
+      "Ground": {
         "allOf": [
           {
             "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
@@ -1199,144 +1469,98 @@
           {
             "type": "object",
             "properties": {
-              "identifier": {
-                "title": "Identifier",
-                "description": "The Revit element unit identifier.",
-                "type": "string",
-                "format": "uuid4"
-              },
-              "geometry_source": {
-                "description": "Revit element type. e.g. room, space or area.",
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/RoomGeometrySource"
-                  }
-                ]
-              },
               "type": {
                 "title": "Type",
-                "default": "ElementInfo",
-                "type": "string",
-                "pattern": "^ElementInfo$",
-                "readOnly": true
-              }
-            },
-            "required": [
-              "identifier",
-              "geometry_source"
-            ]
-          }
-        ],
-        "title": "ElementInfo",
-        "description": "The information of the Revit Element that corresponds\nto the Pollination element in the Model Editor.",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "FuelTypes": {
-        "title": "FuelTypes",
-        "description": "Designates the acceptable fuel types for process loads.",
-        "enum": [
-          "Electricity",
-          "NaturalGas",
-          "Propane",
-          "FuelOilNo1",
-          "FuelOilNo2",
-          "Diesel",
-          "Gasoline",
-          "Coal",
-          "Steam",
-          "DistrictHeating",
-          "DistrictCooling",
-          "OtherFuel1",
-          "OtherFuel2",
-          "None"
-        ],
-        "type": "string"
-      },
-      "ProcessAbridged": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/IDdEnergyBaseModel"
-          },
-          {
-            "type": "object",
-            "required": [
-              "watts",
-              "schedule",
-              "fuel_type"
-            ],
-            "properties": {
-              "watts": {
-                "title": "Watts",
-                "description": "A number for the process load power in Watts.",
-                "minimum": 0,
-                "type": "number",
-                "format": "double"
-              },
-              "schedule": {
-                "title": "Schedule",
-                "description": "Identifier of the schedule for the use of the process over the course of the year. The type of this schedule should be Fractional and the fractional values will get multiplied by the watts to yield a complete equipment profile.",
-                "maxLength": 100,
-                "minLength": 1,
-                "type": "string"
-              },
-              "fuel_type": {
-                "description": "Text to denote the type of fuel consumed by the process. Using the \"None\" type indicates that no end uses will be associated with the process, only the zone gains.",
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/FuelTypes"
-                  }
-                ]
-              },
-              "type": {
-                "title": "Type",
-                "default": "ProcessAbridged",
-                "pattern": "^ProcessAbridged$",
+                "default": "Ground",
+                "pattern": "^Ground$",
                 "type": "string",
                 "readOnly": true
-              },
-              "end_use_category": {
-                "title": "End Use Category",
-                "description": "Text to indicate the end-use subcategory, which will identify the process load in the end use output. For example, \u201cCooking\u201d, \u201cClothes Drying\u201d, etc. A new meter for reporting is created for each unique subcategory.",
-                "default": "Process",
-                "maxLength": 100,
-                "minLength": 1,
-                "type": "string"
-              },
-              "radiant_fraction": {
-                "title": "Radiant Fraction",
-                "description": "Number for the amount of long-wave radiation heat given off by the process load. Default value is 0.",
-                "default": 0,
-                "minimum": 0,
-                "maximum": 1,
-                "type": "number",
-                "format": "double"
-              },
-              "latent_fraction": {
-                "title": "Latent Fraction",
-                "description": "Number for the amount of latent heat given off by the process load. Default value is 0.",
-                "default": 0,
-                "minimum": 0,
-                "maximum": 1,
-                "type": "number",
-                "format": "double"
-              },
-              "lost_fraction": {
-                "title": "Lost Fraction",
-                "description": "Number for the amount of \u201clost\u201d heat being given off by the process load. The default value is 0.",
-                "default": 0,
-                "minimum": 0,
-                "maximum": 1,
-                "type": "number",
-                "format": "double"
               }
             },
             "additionalProperties": false
           }
         ],
-        "title": "ProcessAbridged",
-        "description": "Base class for all objects requiring an EnergyPlus identifier and user_data.",
+        "title": "Ground",
+        "description": "Base class for all objects that are not extensible with additional keys.\n\nThis effectively includes all objects except for the Properties classes\nthat are assigned to geometry objects.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "Outdoors": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "title": "Type",
+                "default": "Outdoors",
+                "pattern": "^Outdoors$",
+                "type": "string",
+                "readOnly": true
+              },
+              "sun_exposure": {
+                "title": "Sun Exposure",
+                "description": "A boolean noting whether the boundary is exposed to sun.",
+                "default": true,
+                "type": "boolean"
+              },
+              "wind_exposure": {
+                "title": "Wind Exposure",
+                "description": "A boolean noting whether the boundary is exposed to wind.",
+                "default": true,
+                "type": "boolean"
+              },
+              "view_factor": {
+                "title": "View Factor",
+                "description": "A number for the view factor to the ground. This can also be an Autocalculate object to have the view factor automatically calculated.",
+                "default": {
+                  "type": "Autocalculate"
+                },
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/Autocalculate"
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "Outdoors",
+        "description": "Base class for all objects that are not extensible with additional keys.\n\nThis effectively includes all objects except for the Properties classes\nthat are assigned to geometry objects.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "Adiabatic": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "title": "Type",
+                "default": "Adiabatic",
+                "pattern": "^Adiabatic$",
+                "type": "string",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "Adiabatic",
+        "description": "Base class for all objects that are not extensible with additional keys.\n\nThis effectively includes all objects except for the Properties classes\nthat are assigned to geometry objects.",
         "discriminator": {
           "propertyName": "type"
         }
@@ -1384,127 +1608,6 @@
           }
         ],
         "title": "OtherSideTemperature",
-        "description": "Base class for all objects that are not extensible with additional keys.\n\nThis effectively includes all objects except for the Properties classes\nthat are assigned to geometry objects.",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "RoomRadiancePropertiesAbridged": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "type": {
-                "title": "Type",
-                "default": "RoomRadiancePropertiesAbridged",
-                "pattern": "^RoomRadiancePropertiesAbridged$",
-                "type": "string",
-                "readOnly": true
-              },
-              "modifier_set": {
-                "title": "Modifier Set",
-                "description": "An identifier for a unique Room-Assigned ModifierSet (default: None).",
-                "type": "string"
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "title": "RoomRadiancePropertiesAbridged",
-        "description": "Abridged Radiance Properties for Honeybee Room.",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "DoorEnergyPropertiesAbridged": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "type": {
-                "title": "Type",
-                "default": "DoorEnergyPropertiesAbridged",
-                "pattern": "^DoorEnergyPropertiesAbridged$",
-                "type": "string",
-                "readOnly": true
-              },
-              "construction": {
-                "title": "Construction",
-                "description": "Identifier of an OpaqueConstruction or WindowConstruction for the door. Note that the host door must have the is_glass property set to True to assign a WindowConstruction. If None, the construction is set by the parent Room construction_set or the Model global_construction_set.",
-                "maxLength": 100,
-                "minLength": 1,
-                "type": "string"
-              },
-              "vent_opening": {
-                "title": "Vent Opening",
-                "description": "An optional VentilationOpening to specify the operable portion of the Door.",
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/VentilationOpening"
-                  }
-                ]
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "title": "DoorEnergyPropertiesAbridged",
-        "description": "Base class for all objects that are not extensible with additional keys.\n\nThis effectively includes all objects except for the Properties classes\nthat are assigned to geometry objects.",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "Ground": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "type": {
-                "title": "Type",
-                "default": "Ground",
-                "pattern": "^Ground$",
-                "type": "string",
-                "readOnly": true
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "title": "Ground",
-        "description": "Base class for all objects that are not extensible with additional keys.\n\nThis effectively includes all objects except for the Properties classes\nthat are assigned to geometry objects.",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "Adiabatic": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "type": {
-                "title": "Type",
-                "default": "Adiabatic",
-                "pattern": "^Adiabatic$",
-                "type": "string",
-                "readOnly": true
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "title": "Adiabatic",
         "description": "Base class for all objects that are not extensible with additional keys.\n\nThis effectively includes all objects except for the Properties classes\nthat are assigned to geometry objects.",
         "discriminator": {
           "propertyName": "type"
@@ -1992,57 +2095,6 @@
           "propertyName": "type"
         }
       },
-      "GriddedSkylightArea": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "skylight_area": {
-                "title": "Skylight Area",
-                "description": "A number for the skylight area in current model units. If this area is larger than the area of the roof that it is applied to, the skylight will fill the parent roof at a 99 percent ratio.",
-                "exclusiveMinimum": 0,
-                "type": "number",
-                "format": "double"
-              },
-              "type": {
-                "title": "Type",
-                "default": "GriddedSkylightArea",
-                "pattern": "^GriddedSkylightArea$",
-                "type": "string",
-                "readOnly": true
-              },
-              "spacing": {
-                "title": "Spacing",
-                "description": "A number for the spacing between the centers of each grid cell. This should be less than a third of the dimension of the Roof geometry if multiple, evenly-spaced skylights are desired. If Autocalculate, a spacing of one third the smaller dimension of the parent Roof will be automatically assumed.",
-                "default": {
-                  "type": "Autocalculate"
-                },
-                "anyOf": [
-                  {
-                    "$ref": "#/components/schemas/Autocalculate"
-                  },
-                  {
-                    "type": "number",
-                    "exclusiveMinimum": 0
-                  }
-                ]
-              }
-            },
-            "required": [
-              "skylight_area"
-            ],
-            "additionalProperties": false
-          }
-        ],
-        "title": "GriddedSkylightArea",
-        "description": "Gridded skylights defined by an absolute area.",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
       "GriddedSkylightRatio": {
         "allOf": [
           {
@@ -2226,6 +2278,114 @@
           "propertyName": "type"
         }
       },
+      "FuelTypes": {
+        "title": "FuelTypes",
+        "description": "Designates the acceptable fuel types for process loads.",
+        "enum": [
+          "Electricity",
+          "NaturalGas",
+          "Propane",
+          "FuelOilNo1",
+          "FuelOilNo2",
+          "Diesel",
+          "Gasoline",
+          "Coal",
+          "Steam",
+          "DistrictHeating",
+          "DistrictCooling",
+          "OtherFuel1",
+          "OtherFuel2",
+          "None"
+        ],
+        "type": "string"
+      },
+      "ProcessAbridged": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/IDdEnergyBaseModel"
+          },
+          {
+            "type": "object",
+            "required": [
+              "watts",
+              "schedule",
+              "fuel_type"
+            ],
+            "properties": {
+              "watts": {
+                "title": "Watts",
+                "description": "A number for the process load power in Watts.",
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              },
+              "schedule": {
+                "title": "Schedule",
+                "description": "Identifier of the schedule for the use of the process over the course of the year. The type of this schedule should be Fractional and the fractional values will get multiplied by the watts to yield a complete equipment profile.",
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              "fuel_type": {
+                "description": "Text to denote the type of fuel consumed by the process. Using the \"None\" type indicates that no end uses will be associated with the process, only the zone gains.",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/FuelTypes"
+                  }
+                ]
+              },
+              "type": {
+                "title": "Type",
+                "default": "ProcessAbridged",
+                "pattern": "^ProcessAbridged$",
+                "type": "string",
+                "readOnly": true
+              },
+              "end_use_category": {
+                "title": "End Use Category",
+                "description": "Text to indicate the end-use subcategory, which will identify the process load in the end use output. For example, \u201cCooking\u201d, \u201cClothes Drying\u201d, etc. A new meter for reporting is created for each unique subcategory.",
+                "default": "Process",
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              "radiant_fraction": {
+                "title": "Radiant Fraction",
+                "description": "Number for the amount of long-wave radiation heat given off by the process load. Default value is 0.",
+                "default": 0,
+                "minimum": 0,
+                "maximum": 1,
+                "type": "number",
+                "format": "double"
+              },
+              "latent_fraction": {
+                "title": "Latent Fraction",
+                "description": "Number for the amount of latent heat given off by the process load. Default value is 0.",
+                "default": 0,
+                "minimum": 0,
+                "maximum": 1,
+                "type": "number",
+                "format": "double"
+              },
+              "lost_fraction": {
+                "title": "Lost Fraction",
+                "description": "Number for the amount of \u201clost\u201d heat being given off by the process load. The default value is 0.",
+                "default": 0,
+                "minimum": 0,
+                "maximum": 1,
+                "type": "number",
+                "format": "double"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "ProcessAbridged",
+        "description": "Base class for all objects requiring an EnergyPlus identifier and user_data.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
       "Room2DEnergyPropertiesAbridged": {
         "allOf": [
           {
@@ -2341,124 +2501,6 @@
         ],
         "title": "RoomGridParameter",
         "description": "Instructions for a SensorGrid generated from a Room2D's floors.",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "RoomRadialGridParameter": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/RoomGridParameter"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "dir_count": {
-                "title": "Dir Count",
-                "description": "A positive integer for the number of radial directions to be generated around each position.",
-                "default": 8,
-                "exclusiveMinimum": 0,
-                "type": "integer",
-                "format": "int32"
-              },
-              "start_vector": {
-                "title": "Start Vector",
-                "description": "A vector as 3 (x, y, z) values to set the start direction of the generated directions. This can be used to orient the resulting sensors to specific parts of the scene. It can also change the elevation of the resulting directions since this start vector will always be rotated in the XY plane to generate the resulting directions.",
-                "minItems": 3,
-                "maxItems": 3,
-                "type": "array",
-                "items": {
-                  "type": "number",
-                  "format": "double"
-                }
-              },
-              "mesh_radius": {
-                "title": "Mesh Radius",
-                "description": "An optional number to override the radius of the meshes generated around each sensor. If Autocalculate, it will be equal to 45 percent of the grid dimension.",
-                "default": {
-                  "type": "Autocalculate"
-                },
-                "anyOf": [
-                  {
-                    "$ref": "#/components/schemas/Autocalculate"
-                  },
-                  {
-                    "type": "number",
-                    "minimum": 0
-                  }
-                ]
-              },
-              "type": {
-                "title": "Type",
-                "default": "RoomRadialGridParameter",
-                "pattern": "^RoomRadialGridParameter$",
-                "type": "string",
-                "readOnly": true
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "title": "RoomRadialGridParameter",
-        "description": "Instructions for a SensorGrid of radial directions around positions from floors.\n\nThis type of sensor grid is particularly helpful for studies of multiple\nview directions, such as imageless glare studies.",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "ExteriorFaceType": {
-        "title": "ExteriorFaceType",
-        "description": "An enumeration.",
-        "enum": [
-          "Wall",
-          "Roof",
-          "Floor",
-          "All"
-        ],
-        "type": "string"
-      },
-      "ExteriorFaceGridParameter": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/_GridParameterBase"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "type": {
-                "title": "Type",
-                "default": "ExteriorFaceGridParameter",
-                "pattern": "^ExteriorFaceGridParameter$",
-                "type": "string",
-                "readOnly": true
-              },
-              "offset": {
-                "title": "Offset",
-                "description": "A number for how far to offset the grid from the Faces. (Default: 0.1, suitable for Models in Meters).",
-                "default": 0.1,
-                "type": "number",
-                "format": "double"
-              },
-              "face_type": {
-                "description": "Text to specify the type of face that will be used to generate grids. Note that only Faces with Outdoors boundary conditions will be used, meaning that most Floors will typically be excluded unless they represent the underside of a cantilever.",
-                "default": "Wall",
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/ExteriorFaceType"
-                  }
-                ]
-              },
-              "punched_geometry": {
-                "title": "Punched Geometry",
-                "description": "A boolean to note whether the punched_geometry of the faces should be used (True) with the areas of sub-faces removed from the grid or the full geometry should be used (False).",
-                "default": false,
-                "type": "boolean"
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "title": "ExteriorFaceGridParameter",
-        "description": "Instructions for a SensorGrid generated from exterior Faces.",
         "discriminator": {
           "propertyName": "type"
         }
@@ -2681,6 +2723,34 @@
                 "default": false,
                 "type": "boolean"
               },
+              "has_floor": {
+                "title": "Has Floor",
+                "description": "A boolean for whether the room has a Floor (True) or an AirBoundary (False). If False, this property will only be meaningful if the model is translated to Honeybee with ceiling adjacency solved and there is a Room2D below this one with a has_ceiling property set to False.",
+                "default": true,
+                "type": "boolean"
+              },
+              "has_ceiling": {
+                "title": "Has Ceiling",
+                "description": "A boolean for whether the room has a RoofCeiling (True) or an AirBoundary (False). If False, this property will only be meaningful if the model is translated to Honeybee with ceiling adjacency solved and there is a Room2D above this one with a has_floor property set to False.",
+                "default": true,
+                "type": "boolean"
+              },
+              "ceiling_plenum_depth": {
+                "title": "Ceiling Plenum Depth",
+                "description": "A number for the depth that a ceiling plenum extends into the room. Setting this to a positive value will result in a separate plenum room being split off of the Room2D volume during translation from Dragonfly to Honeybee. The bottom of this ceiling plenum will always be at this Room2D ceiling height minus the value specified here. Setting this to zero indicates that the room has no ceiling plenum.",
+                "default": 0,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              },
+              "floor_plenum_depth": {
+                "title": "Floor Plenum Depth",
+                "description": "A number for the depth that a floor plenum extends into the room. Setting this to a positive value will result in a separate plenum room being split off of the Room2D volume during translation from Dragonfly to Honeybee. The top of this floor plenum will always be at this Room2D floor height plus the value specified here. Setting this to zero indicates that the room has no floor plenum.",
+                "default": 0,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              },
               "boundary_conditions": {
                 "title": "Boundary Conditions",
                 "description": "A list of boundary conditions that match the number of segments in the input floor_geometry + floor_holes. These will be used to assign boundary conditions to each of the walls of the Room in the resulting model. Their order should align with the order of segments in the floor_boundary and then with each hole segment. If None, all boundary conditions will be Outdoors or Ground depending on whether ceiling height of the room is at or below 0 (the assumed ground plane).",
@@ -2786,32 +2856,7 @@
           "propertyName": "type"
         }
       },
-      "FaceRadiancePropertiesAbridged": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/_PropertiesBaseAbridged"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "type": {
-                "title": "Type",
-                "default": "FaceRadiancePropertiesAbridged",
-                "pattern": "^FaceRadiancePropertiesAbridged$",
-                "type": "string",
-                "readOnly": true
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "title": "FaceRadiancePropertiesAbridged",
-        "description": "Radiance Properties for Honeybee Face Abridged.",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "FacePropertiesAbridged": {
+      "DoorEnergyPropertiesAbridged": {
         "allOf": [
           {
             "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
@@ -2821,123 +2866,33 @@
             "properties": {
               "type": {
                 "title": "Type",
-                "default": "FacePropertiesAbridged",
-                "pattern": "^FacePropertiesAbridged$",
+                "default": "DoorEnergyPropertiesAbridged",
+                "pattern": "^DoorEnergyPropertiesAbridged$",
                 "type": "string",
                 "readOnly": true
               },
-              "energy": {
-                "$ref": "#/components/schemas/FaceEnergyPropertiesAbridged"
-              },
-              "radiance": {
-                "$ref": "#/components/schemas/FaceRadiancePropertiesAbridged"
-              }
-            }
-          }
-        ],
-        "title": "FacePropertiesAbridged",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "VentilationAbridged": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/IDdEnergyBaseModel"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "type": {
-                "title": "Type",
-                "default": "VentilationAbridged",
-                "pattern": "^VentilationAbridged$",
-                "type": "string",
-                "readOnly": true
-              },
-              "flow_per_person": {
-                "title": "Flow Per Person",
-                "description": "Intensity of ventilation in[] m3/s per person]. Note that setting this value does not mean that ventilation is varied based on real-time occupancy but rather that the design level of ventilation is determined using this value and the People object of the Room.",
-                "default": 0,
-                "minimum": 0,
-                "type": "number",
-                "format": "double"
-              },
-              "flow_per_area": {
-                "title": "Flow Per Area",
-                "description": "Intensity of ventilation in [m3/s per m2 of floor area].",
-                "default": 0,
-                "minimum": 0,
-                "type": "number",
-                "format": "double"
-              },
-              "air_changes_per_hour": {
-                "title": "Air Changes Per Hour",
-                "description": "Intensity of ventilation in air changes per hour (ACH) for the entire Room.",
-                "default": 0,
-                "minimum": 0,
-                "type": "number",
-                "format": "double"
-              },
-              "flow_per_zone": {
-                "title": "Flow Per Zone",
-                "description": "Intensity of ventilation in m3/s for the entire Room.",
-                "default": 0,
-                "minimum": 0,
-                "type": "number",
-                "format": "double"
-              },
-              "schedule": {
-                "title": "Schedule",
-                "description": "Identifier of the schedule for the ventilation over the course of the year. The type of this schedule should be Fractional and the fractional values will get multiplied by the total design flow rate (determined from the sum of the other 4 fields) to yield a complete ventilation profile.",
+              "construction": {
+                "title": "Construction",
+                "description": "Identifier of an OpaqueConstruction or WindowConstruction for the door. Note that the host door must have the is_glass property set to True to assign a WindowConstruction. If None, the construction is set by the parent Room construction_set or the Model global_construction_set.",
                 "maxLength": 100,
                 "minLength": 1,
                 "type": "string"
+              },
+              "vent_opening": {
+                "title": "Vent Opening",
+                "description": "An optional VentilationOpening to specify the operable portion of the Door.",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/VentilationOpening"
+                  }
+                ]
               }
             },
             "additionalProperties": false
           }
         ],
-        "title": "VentilationAbridged",
-        "description": "Base class for all objects requiring an EnergyPlus identifier and user_data.",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "DoorRadiancePropertiesAbridged": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/_PropertiesBaseAbridged"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "type": {
-                "title": "Type",
-                "default": "DoorRadiancePropertiesAbridged",
-                "pattern": "^DoorRadiancePropertiesAbridged$",
-                "type": "string",
-                "readOnly": true
-              },
-              "dynamic_group_identifier": {
-                "title": "Dynamic Group Identifier",
-                "description": "An optional string to note the dynamic group '             'to which the Door is a part of. Doors sharing the same '             'dynamic_group_identifier will have their states change in unison. '             'If None, the Door is assumed to be static. (default: None).",
-                "type": "string"
-              },
-              "states": {
-                "title": "States",
-                "description": "An optional list of abridged states (default: None).",
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/RadianceSubFaceStateAbridged"
-                }
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "title": "DoorRadiancePropertiesAbridged",
-        "description": "Radiance Properties for Honeybee Door Abridged.",
+        "title": "DoorEnergyPropertiesAbridged",
+        "description": "Base class for all objects that are not extensible with additional keys.\n\nThis effectively includes all objects except for the Properties classes\nthat are assigned to geometry objects.",
         "discriminator": {
           "propertyName": "type"
         }
@@ -2967,141 +2922,6 @@
           }
         ],
         "title": "DoorPropertiesAbridged",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "Door": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/IDdBaseModel"
-          },
-          {
-            "type": "object",
-            "required": [
-              "geometry",
-              "boundary_condition",
-              "properties"
-            ],
-            "properties": {
-              "geometry": {
-                "title": "Geometry",
-                "description": "Planar Face3D for the geometry.",
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/Face3D"
-                  }
-                ]
-              },
-              "boundary_condition": {
-                "title": "Boundary Condition",
-                "anyOf": [
-                  {
-                    "$ref": "#/components/schemas/Outdoors"
-                  },
-                  {
-                    "$ref": "#/components/schemas/Surface"
-                  }
-                ]
-              },
-              "properties": {
-                "title": "Properties",
-                "description": "Extension properties for particular simulation engines (Radiance, EnergyPlus).",
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/DoorPropertiesAbridged"
-                  }
-                ]
-              },
-              "type": {
-                "title": "Type",
-                "default": "Door",
-                "pattern": "^Door$",
-                "type": "string",
-                "readOnly": true
-              },
-              "is_glass": {
-                "title": "Is Glass",
-                "description": "Boolean to note whether this object is a glass door as opposed to an opaque door.",
-                "default": false,
-                "type": "boolean"
-              },
-              "indoor_shades": {
-                "title": "Indoor Shades",
-                "description": "Shades assigned to the interior side of this object.",
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/Shade"
-                }
-              },
-              "outdoor_shades": {
-                "title": "Outdoor Shades",
-                "description": "Shades assigned to the exterior side of this object (eg. entryway awning).",
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/Shade"
-                }
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "title": "Door",
-        "description": "Base class for all objects requiring a identifiers acceptable for all engines.",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "RoomElementInfo": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
-          },
-          {
-            "type": "object",
-            "required": [
-              "identifier",
-              "geometry_source"
-            ],
-            "properties": {
-              "identifier": {
-                "title": "Identifier",
-                "description": "The Revit element unit identifier.",
-                "type": "string",
-                "format": "uuid4"
-              },
-              "geometry_source": {
-                "description": "Revit element type. e.g. room, space or area.",
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/RoomGeometrySource"
-                  }
-                ]
-              },
-              "extrusion_height": {
-                "title": "Extrusion Height",
-                "description": "An extrusion height in Revit document units to overwrite the existing extrusion height. If not provided the extrusion height that is assigned to the room in Revit will be used. If that is not set the extrusion height value from the level will be used.",
-                "type": "number",
-                "format": "double"
-              },
-              "elevation": {
-                "title": "Elevation",
-                "description": "An elevation value if the elevation of the room differs from the level elevation.",
-                "type": "number",
-                "format": "double"
-              },
-              "type": {
-                "title": "Type",
-                "default": "RoomElementInfo",
-                "type": "string",
-                "pattern": "^RoomElementInfo$",
-                "readOnly": true
-              }
-            }
-          }
-        ],
-        "title": "RoomElementInfo",
-        "description": "The information for the Revit element that corresponds\nto the Pollination room, space or area plus the extrusion height\nand the elevation for parsing them from Revit.",
         "discriminator": {
           "propertyName": "type"
         }
@@ -3310,75 +3130,6 @@
           "propertyName": "type"
         }
       },
-      "ServiceHotWaterAbridged": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/IDdEnergyBaseModel"
-          },
-          {
-            "type": "object",
-            "required": [
-              "flow_per_area",
-              "schedule"
-            ],
-            "properties": {
-              "flow_per_area": {
-                "title": "Flow Per Area",
-                "description": "Number for the total volume flow rate of water per unit area of floor [L/h-m2].",
-                "minimum": 0,
-                "type": "number",
-                "format": "double"
-              },
-              "schedule": {
-                "title": "Schedule",
-                "description": "Identifier of the schedule for the hot water use over the course of the year. The type of this schedule should be Fractional and the fractional values will get multiplied by the flow_per_area to yield a complete water usage profile.",
-                "maxLength": 100,
-                "minLength": 1,
-                "type": "string"
-              },
-              "type": {
-                "title": "Type",
-                "default": "ServiceHotWaterAbridged",
-                "pattern": "^ServiceHotWaterAbridged$",
-                "type": "string",
-                "readOnly": true
-              },
-              "target_temperature": {
-                "title": "Target Temperature",
-                "description": "Number for the target temperature of water out of the tap (C). This the temperature after hot water has been mixed with cold water from the water mains. The default is 60C, which essentially assumes that the flow_per_area on this object is only for water straight out of the water heater.",
-                "default": 60,
-                "exclusiveMinimum": 0,
-                "type": "number",
-                "format": "double"
-              },
-              "sensible_fraction": {
-                "title": "Sensible Fraction",
-                "description": "A number between 0 and 1 for the fraction of the total hot water load given off as sensible heat in the zone.",
-                "default": 0.2,
-                "minimum": 0,
-                "maximum": 1,
-                "type": "number",
-                "format": "double"
-              },
-              "latent_fraction": {
-                "title": "Latent Fraction",
-                "description": "A number between 0 and 1 for the fraction of the total hot water load that is latent.",
-                "default": 0.05,
-                "minimum": 0,
-                "maximum": 1,
-                "type": "number",
-                "format": "double"
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "title": "ServiceHotWaterAbridged",
-        "description": "Base class for all objects requiring an EnergyPlus identifier and user_data.",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
       "InfiltrationAbridged": {
         "allOf": [
           {
@@ -3443,67 +3194,66 @@
           "propertyName": "type"
         }
       },
-      "SetpointAbridged": {
+      "VentilationAbridged": {
         "allOf": [
           {
             "$ref": "#/components/schemas/IDdEnergyBaseModel"
           },
           {
             "type": "object",
-            "required": [
-              "cooling_schedule",
-              "heating_schedule"
-            ],
             "properties": {
-              "cooling_schedule": {
-                "title": "Cooling Schedule",
-                "description": "Identifier of the schedule for the cooling setpoint. The values in this schedule should be temperature in [C].",
-                "maxLength": 100,
-                "minLength": 1,
-                "type": "string"
-              },
-              "heating_schedule": {
-                "title": "Heating Schedule",
-                "description": "Identifier of the schedule for the heating setpoint. The values in this schedule should be temperature in [C].",
-                "maxLength": 100,
-                "minLength": 1,
-                "type": "string"
-              },
               "type": {
                 "title": "Type",
-                "default": "SetpointAbridged",
-                "pattern": "^SetpointAbridged$",
+                "default": "VentilationAbridged",
+                "pattern": "^VentilationAbridged$",
                 "type": "string",
                 "readOnly": true
               },
-              "humidifying_schedule": {
-                "title": "Humidifying Schedule",
-                "description": "Identifier of the schedule for the humidification setpoint. The values in this schedule should be in [%].",
-                "maxLength": 100,
-                "minLength": 1,
-                "type": "string"
-              },
-              "dehumidifying_schedule": {
-                "title": "Dehumidifying Schedule",
-                "description": "Identifier of the schedule for the dehumidification setpoint. The values in this schedule should be in [%].",
-                "maxLength": 100,
-                "minLength": 1,
-                "type": "string"
-              },
-              "setpoint_cutout_difference": {
-                "title": "Setpoint Cutout Difference",
-                "description": "An optional positive number for the temperature difference between the cutout temperature and the setpoint temperature. Specifying a non-zero number here is useful for modeling the throttling range associated with a given setup of setpoint controls and HVAC equipment. Throttling ranges describe the range where a zone is slightly over-cooled or over-heated beyond the thermostat setpoint. They are used to avoid situations where HVAC systems turn on only to turn off a few minutes later, thereby wearing out the parts of mechanical systems faster. They can have a minor impact on energy consumption and can often have significant impacts on occupant thermal comfort, though using the default value of zero will often yield results that are close enough when trying to estimate the annual heating/cooling energy use. Specifying a value of zero effectively assumes that the system will turn on whenever conditions are outside the setpoint range and will cut out as soon as the setpoint is reached.",
+              "flow_per_person": {
+                "title": "Flow Per Person",
+                "description": "Intensity of ventilation in[] m3/s per person]. Note that setting this value does not mean that ventilation is varied based on real-time occupancy but rather that the design level of ventilation is determined using this value and the People object of the Room.",
                 "default": 0,
                 "minimum": 0,
                 "type": "number",
                 "format": "double"
+              },
+              "flow_per_area": {
+                "title": "Flow Per Area",
+                "description": "Intensity of ventilation in [m3/s per m2 of floor area].",
+                "default": 0,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              },
+              "air_changes_per_hour": {
+                "title": "Air Changes Per Hour",
+                "description": "Intensity of ventilation in air changes per hour (ACH) for the entire Room.",
+                "default": 0,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              },
+              "flow_per_zone": {
+                "title": "Flow Per Zone",
+                "description": "Intensity of ventilation in m3/s for the entire Room.",
+                "default": 0,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              },
+              "schedule": {
+                "title": "Schedule",
+                "description": "Identifier of the schedule for the ventilation over the course of the year. The type of this schedule should be Fractional and the fractional values will get multiplied by the total design flow rate (determined from the sum of the other 4 fields) to yield a complete ventilation profile.",
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
               }
             },
             "additionalProperties": false
           }
         ],
-        "title": "SetpointAbridged",
-        "description": "Used to specify information about the setpoint schedule.",
+        "title": "VentilationAbridged",
+        "description": "Base class for all objects requiring an EnergyPlus identifier and user_data.",
         "discriminator": {
           "propertyName": "type"
         }
@@ -3878,6 +3628,47 @@
           "propertyName": "type"
         }
       },
+      "ApertureEnergyPropertiesAbridged": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "title": "Type",
+                "default": "ApertureEnergyPropertiesAbridged",
+                "pattern": "^ApertureEnergyPropertiesAbridged$",
+                "type": "string",
+                "readOnly": true
+              },
+              "construction": {
+                "title": "Construction",
+                "description": "Identifier of a WindowConstruction for the aperture. If None, the construction is set by the parent Room construction_set or the Model global_construction_set.",
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              "vent_opening": {
+                "title": "Vent Opening",
+                "description": "An optional VentilationOpening to specify the operable portion of the Aperture.",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/VentilationOpening"
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "ApertureEnergyPropertiesAbridged",
+        "description": "Base class for all objects that are not extensible with additional keys.\n\nThis effectively includes all objects except for the Properties classes\nthat are assigned to geometry objects.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
       "RoomDoe2Properties": {
         "allOf": [
           {
@@ -3994,102 +3785,174 @@
           "propertyName": "type"
         }
       },
-      "RoomPropertiesAbridged": {
+      "RoomGeometrySource": {
+        "title": "RoomGeometrySource",
+        "description": "Geometry source options for creating PO rooms.",
+        "enum": [
+          "Room",
+          "Space",
+          "Area"
+        ]
+      },
+      "RoomElementInfo": {
         "allOf": [
           {
             "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
           },
           {
             "type": "object",
+            "required": [
+              "identifier",
+              "geometry_source"
+            ],
             "properties": {
-              "type": {
-                "title": "Type",
-                "default": "RoomPropertiesAbridged",
-                "pattern": "^RoomPropertiesAbridged$",
+              "identifier": {
+                "title": "Identifier",
+                "description": "The Revit element unit identifier.",
                 "type": "string",
-                "readOnly": true
+                "format": "uuid4"
               },
-              "energy": {
-                "$ref": "#/components/schemas/RoomEnergyPropertiesAbridged"
+              "geometry_source": {
+                "description": "Revit element type. e.g. room, space or area.",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/RoomGeometrySource"
+                  }
+                ]
               },
-              "radiance": {
-                "$ref": "#/components/schemas/RoomRadiancePropertiesAbridged"
+              "extrusion_height": {
+                "title": "Extrusion Height",
+                "description": "An extrusion height in Revit document units to overwrite the existing extrusion height. If not provided the extrusion height that is assigned to the room in Revit will be used. If that is not set the extrusion height value from the level will be used.",
+                "type": "number",
+                "format": "double"
               },
-              "doe2": {
-                "$ref": "#/components/schemas/RoomDoe2Properties"
-              }
-            }
-          }
-        ],
-        "title": "RoomPropertiesAbridged",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "LengthUnits": {
-        "title": "LengthUnits",
-        "description": "An enumeration.",
-        "enum": [
-          "Decimal feet",
-          "Feet and fractional inches",
-          "Decimal inches",
-          "Fractional inches",
-          "Meters",
-          "Decimeters",
-          "Centimeters",
-          "Millimeters",
-          "Meters and centimeters"
-        ]
-      },
-      "AreaUnits": {
-        "title": "AreaUnits",
-        "description": "An enumeration.",
-        "enum": [
-          "Square feet",
-          "Square inches",
-          "Square meters",
-          "Square centimeters",
-          "Square millimeters",
-          "Acres",
-          "Hectares"
-        ]
-      },
-      "RevitDocumentSettings": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "length_unit": {
-                "$ref": "#/components/schemas/LengthUnits"
-              },
-              "area_unit": {
-                "$ref": "#/components/schemas/AreaUnits"
-              },
-              "tolerance": {
-                "title": "Tolerance",
+              "elevation": {
+                "title": "Elevation",
+                "description": "An elevation value if the elevation of the room differs from the level elevation.",
                 "type": "number",
                 "format": "double"
               },
               "type": {
                 "title": "Type",
-                "default": "RevitDocumentSettings",
+                "default": "RoomElementInfo",
                 "type": "string",
-                "pattern": "^RevitDocumentSettings$",
+                "pattern": "^RoomElementInfo$",
+                "readOnly": true
+              }
+            }
+          }
+        ],
+        "title": "RoomElementInfo",
+        "description": "The information for the Revit element that corresponds\nto the Pollination room, space or area plus the extrusion height\nand the elevation for parsing them from Revit.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "ApertureRadiancePropertiesAbridged": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/_PropertiesBaseAbridged"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "title": "Type",
+                "default": "ApertureRadiancePropertiesAbridged",
+                "pattern": "^ApertureRadiancePropertiesAbridged$",
+                "type": "string",
+                "readOnly": true
+              },
+              "dynamic_group_identifier": {
+                "title": "Dynamic Group Identifier",
+                "description": "An optional string to note the dynamic group '             'to which the Aperture is a part of. Apertures sharing the same '             'dynamic_group_identifier will have their states change in unison. '             'If None, the Aperture is assumed to be static. (default: None).",
+                "type": "string"
+              },
+              "states": {
+                "title": "States",
+                "description": "An optional list of abridged states (default: None).",
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/RadianceSubFaceStateAbridged"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "ApertureRadiancePropertiesAbridged",
+        "description": "Radiance Properties for Honeybee Aperture Abridged.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "AperturePropertiesAbridged": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "title": "Type",
+                "default": "AperturePropertiesAbridged",
+                "pattern": "^AperturePropertiesAbridged$",
+                "type": "string",
+                "readOnly": true
+              },
+              "energy": {
+                "$ref": "#/components/schemas/ApertureEnergyPropertiesAbridged"
+              },
+              "radiance": {
+                "$ref": "#/components/schemas/ApertureRadiancePropertiesAbridged"
+              }
+            }
+          }
+        ],
+        "title": "AperturePropertiesAbridged",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "ElementInfo": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "identifier": {
+                "title": "Identifier",
+                "description": "The Revit element unit identifier.",
+                "type": "string",
+                "format": "uuid4"
+              },
+              "geometry_source": {
+                "description": "Revit element type. e.g. room, space or area.",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/RoomGeometrySource"
+                  }
+                ]
+              },
+              "type": {
+                "title": "Type",
+                "default": "ElementInfo",
+                "type": "string",
+                "pattern": "^ElementInfo$",
                 "readOnly": true
               }
             },
             "required": [
-              "length_unit",
-              "area_unit",
-              "tolerance"
+              "identifier",
+              "geometry_source"
             ]
           }
         ],
-        "title": "RevitDocumentSettings",
-        "description": "Revit document settings that are useful for Pollination interactions.",
+        "title": "ElementInfo",
+        "description": "The information of the Revit Element that corresponds\nto the Pollination element in the Model Editor.",
         "discriminator": {
           "propertyName": "type"
         }
@@ -4324,6 +4187,74 @@
           "propertyName": "type"
         }
       },
+      "LengthUnits": {
+        "title": "LengthUnits",
+        "description": "An enumeration.",
+        "enum": [
+          "Decimal feet",
+          "Feet and fractional inches",
+          "Decimal inches",
+          "Fractional inches",
+          "Meters",
+          "Decimeters",
+          "Centimeters",
+          "Millimeters",
+          "Meters and centimeters"
+        ]
+      },
+      "AreaUnits": {
+        "title": "AreaUnits",
+        "description": "An enumeration.",
+        "enum": [
+          "Square feet",
+          "Square inches",
+          "Square meters",
+          "Square centimeters",
+          "Square millimeters",
+          "Acres",
+          "Hectares"
+        ]
+      },
+      "RevitDocumentSettings": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "length_unit": {
+                "$ref": "#/components/schemas/LengthUnits"
+              },
+              "area_unit": {
+                "$ref": "#/components/schemas/AreaUnits"
+              },
+              "tolerance": {
+                "title": "Tolerance",
+                "type": "number",
+                "format": "double"
+              },
+              "type": {
+                "title": "Type",
+                "default": "RevitDocumentSettings",
+                "type": "string",
+                "pattern": "^RevitDocumentSettings$",
+                "readOnly": true
+              }
+            },
+            "required": [
+              "length_unit",
+              "area_unit",
+              "tolerance"
+            ]
+          }
+        ],
+        "title": "RevitDocumentSettings",
+        "description": "Revit document settings that are useful for Pollination interactions.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
       "FaceType": {
         "title": "FaceType",
         "description": "An enumeration.",
@@ -4334,6 +4265,222 @@
           "AirBoundary"
         ],
         "type": "string"
+      },
+      "Aperture": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/IDdBaseModel"
+          },
+          {
+            "type": "object",
+            "required": [
+              "geometry",
+              "boundary_condition",
+              "properties"
+            ],
+            "properties": {
+              "geometry": {
+                "title": "Geometry",
+                "description": "Planar Face3D for the geometry.",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Face3D"
+                  }
+                ]
+              },
+              "boundary_condition": {
+                "title": "Boundary Condition",
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/Outdoors"
+                  },
+                  {
+                    "$ref": "#/components/schemas/Surface"
+                  }
+                ]
+              },
+              "properties": {
+                "title": "Properties",
+                "description": "Extension properties for particular simulation engines (Radiance, EnergyPlus).",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/AperturePropertiesAbridged"
+                  }
+                ]
+              },
+              "type": {
+                "title": "Type",
+                "default": "Aperture",
+                "pattern": "^Aperture$",
+                "type": "string",
+                "readOnly": true
+              },
+              "is_operable": {
+                "title": "Is Operable",
+                "description": "Boolean to note whether the Aperture can be opened for ventilation.",
+                "default": false,
+                "type": "boolean"
+              },
+              "indoor_shades": {
+                "title": "Indoor Shades",
+                "description": "Shades assigned to the interior side of this object (eg. window sill, light shelf).",
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Shade"
+                }
+              },
+              "outdoor_shades": {
+                "title": "Outdoor Shades",
+                "description": "Shades assigned to the exterior side of this object (eg. mullions, louvers).",
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Shade"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "Aperture",
+        "description": "Base class for all objects requiring a identifiers acceptable for all engines.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "Door": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/IDdBaseModel"
+          },
+          {
+            "type": "object",
+            "required": [
+              "geometry",
+              "boundary_condition",
+              "properties"
+            ],
+            "properties": {
+              "geometry": {
+                "title": "Geometry",
+                "description": "Planar Face3D for the geometry.",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Face3D"
+                  }
+                ]
+              },
+              "boundary_condition": {
+                "title": "Boundary Condition",
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/Outdoors"
+                  },
+                  {
+                    "$ref": "#/components/schemas/Surface"
+                  }
+                ]
+              },
+              "properties": {
+                "title": "Properties",
+                "description": "Extension properties for particular simulation engines (Radiance, EnergyPlus).",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/DoorPropertiesAbridged"
+                  }
+                ]
+              },
+              "type": {
+                "title": "Type",
+                "default": "Door",
+                "pattern": "^Door$",
+                "type": "string",
+                "readOnly": true
+              },
+              "is_glass": {
+                "title": "Is Glass",
+                "description": "Boolean to note whether this object is a glass door as opposed to an opaque door.",
+                "default": false,
+                "type": "boolean"
+              },
+              "indoor_shades": {
+                "title": "Indoor Shades",
+                "description": "Shades assigned to the interior side of this object.",
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Shade"
+                }
+              },
+              "outdoor_shades": {
+                "title": "Outdoor Shades",
+                "description": "Shades assigned to the exterior side of this object (eg. entryway awning).",
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Shade"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "Door",
+        "description": "Base class for all objects requiring a identifiers acceptable for all engines.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "FaceRadiancePropertiesAbridged": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/_PropertiesBaseAbridged"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "title": "Type",
+                "default": "FaceRadiancePropertiesAbridged",
+                "pattern": "^FaceRadiancePropertiesAbridged$",
+                "type": "string",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "FaceRadiancePropertiesAbridged",
+        "description": "Radiance Properties for Honeybee Face Abridged.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "FacePropertiesAbridged": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "title": "Type",
+                "default": "FacePropertiesAbridged",
+                "pattern": "^FacePropertiesAbridged$",
+                "type": "string",
+                "readOnly": true
+              },
+              "energy": {
+                "$ref": "#/components/schemas/FaceEnergyPropertiesAbridged"
+              },
+              "radiance": {
+                "$ref": "#/components/schemas/FaceRadiancePropertiesAbridged"
+              }
+            }
+          }
+        ],
+        "title": "FacePropertiesAbridged",
+        "discriminator": {
+          "propertyName": "type"
+        }
       },
       "Face": {
         "allOf": [
@@ -4439,6 +4586,68 @@
           "propertyName": "type"
         }
       },
+      "RoomRadiancePropertiesAbridged": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "title": "Type",
+                "default": "RoomRadiancePropertiesAbridged",
+                "pattern": "^RoomRadiancePropertiesAbridged$",
+                "type": "string",
+                "readOnly": true
+              },
+              "modifier_set": {
+                "title": "Modifier Set",
+                "description": "An identifier for a unique Room-Assigned ModifierSet (default: None).",
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "RoomRadiancePropertiesAbridged",
+        "description": "Abridged Radiance Properties for Honeybee Room.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "RoomPropertiesAbridged": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "title": "Type",
+                "default": "RoomPropertiesAbridged",
+                "pattern": "^RoomPropertiesAbridged$",
+                "type": "string",
+                "readOnly": true
+              },
+              "energy": {
+                "$ref": "#/components/schemas/RoomEnergyPropertiesAbridged"
+              },
+              "radiance": {
+                "$ref": "#/components/schemas/RoomRadiancePropertiesAbridged"
+              },
+              "doe2": {
+                "$ref": "#/components/schemas/RoomDoe2Properties"
+              }
+            }
+          }
+        ],
+        "title": "RoomPropertiesAbridged",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
       "Room": {
         "allOf": [
           {
@@ -4521,6 +4730,50 @@
           "propertyName": "type"
         }
       },
+      "RevitLevelElementCount": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "room_count": {
+                "title": "Room Count",
+                "type": "integer",
+                "format": "int32"
+              },
+              "space_count": {
+                "title": "Space Count",
+                "type": "integer",
+                "format": "int32"
+              },
+              "area_count": {
+                "title": "Area Count",
+                "type": "integer",
+                "format": "int32"
+              },
+              "type": {
+                "title": "Type",
+                "default": "RevitLevelElementCount",
+                "type": "string",
+                "pattern": "^RevitLevelElementCount$",
+                "readOnly": true
+              }
+            },
+            "required": [
+              "room_count",
+              "space_count",
+              "area_count"
+            ]
+          }
+        ],
+        "title": "RevitLevelElementCount",
+        "description": "Counts for Revit Room/Space/Area from a level.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
       "PORoom": {
         "allOf": [
           {
@@ -4594,7 +4847,7 @@
           "propertyName": "type"
         }
       },
-      "IDdBaseModel": {
+      "RevitPhase": {
         "allOf": [
           {
             "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
@@ -4602,40 +4855,30 @@
           {
             "type": "object",
             "properties": {
-              "identifier": {
-                "title": "Identifier",
-                "description": "Text string for a unique object ID. This identifier remains constant as the object is mutated, copied, and serialized to different formats (eg. dict, idf, rad). This identifier is also used to reference the object across a Model. It must be < 100 characters and not contain any spaces or special characters.",
-                "maxLength": 100,
-                "minLength": 1,
-                "pattern": "^[.A-Za-z0-9_-]+$",
+              "name": {
+                "title": "Name",
                 "type": "string"
               },
-              "display_name": {
-                "title": "Display Name",
-                "description": "Display name of the object with no character restrictions.",
+              "unique_id": {
+                "title": "Unique Id",
                 "type": "string"
-              },
-              "user_data": {
-                "title": "User Data",
-                "description": "Optional dictionary of user data associated with the object.All keys and values of this dictionary should be of a standard data type to ensure correct serialization of the object (eg. str, float, int, list).",
-                "type": "object"
               },
               "type": {
                 "title": "Type",
-                "default": "IDdBaseModel",
+                "default": "RevitPhase",
                 "type": "string",
-                "pattern": "^IDdBaseModel$",
+                "pattern": "^RevitPhase$",
                 "readOnly": true
               }
             },
             "required": [
-              "identifier"
-            ],
-            "additionalProperties": false
+              "name",
+              "unique_id"
+            ]
           }
         ],
-        "title": "IDdBaseModel",
-        "description": "Base class for all objects requiring a identifiers acceptable for all engines.",
+        "title": "RevitPhase",
+        "description": "Revit project's phase.",
         "discriminator": {
           "propertyName": "type"
         }
@@ -4711,7 +4954,7 @@
           "propertyName": "type"
         }
       },
-      "_PropertiesBaseAbridged": {
+      "IDdBaseModel": {
         "allOf": [
           {
             "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
@@ -4719,29 +4962,40 @@
           {
             "type": "object",
             "properties": {
-              "modifier": {
-                "title": "Modifier",
-                "description": "A string for a Honeybee Radiance Modifier (default: None).",
+              "identifier": {
+                "title": "Identifier",
+                "description": "Text string for a unique object ID. This identifier remains constant as the object is mutated, copied, and serialized to different formats (eg. dict, idf, rad). This identifier is also used to reference the object across a Model. It must be < 100 characters and not contain any spaces or special characters.",
+                "maxLength": 100,
+                "minLength": 1,
+                "pattern": "^[.A-Za-z0-9_-]+$",
                 "type": "string"
               },
-              "modifier_blk": {
-                "title": "Modifier Blk",
-                "description": "A string for a Honeybee Radiance Modifier to be used in direct solar simulations and in isolation studies (assessingthe contribution of individual objects) (default: None).",
+              "display_name": {
+                "title": "Display Name",
+                "description": "Display name of the object with no character restrictions.",
                 "type": "string"
+              },
+              "user_data": {
+                "title": "User Data",
+                "description": "Optional dictionary of user data associated with the object.All keys and values of this dictionary should be of a standard data type to ensure correct serialization of the object (eg. str, float, int, list).",
+                "type": "object"
               },
               "type": {
                 "title": "Type",
-                "default": "_PropertiesBaseAbridged",
+                "default": "IDdBaseModel",
                 "type": "string",
-                "pattern": "^_PropertiesBaseAbridged$",
+                "pattern": "^IDdBaseModel$",
                 "readOnly": true
               }
             },
+            "required": [
+              "identifier"
+            ],
             "additionalProperties": false
           }
         ],
-        "title": "_PropertiesBaseAbridged",
-        "description": "Base class of Abridged Radiance Properties.",
+        "title": "IDdBaseModel",
+        "description": "Base class for all objects requiring a identifiers acceptable for all engines.",
         "discriminator": {
           "propertyName": "type"
         }
@@ -4787,7 +5041,7 @@
           "propertyName": "type"
         }
       },
-      "_LouversBase": {
+      "_PropertiesBaseAbridged": {
         "allOf": [
           {
             "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
@@ -4795,67 +5049,99 @@
           {
             "type": "object",
             "properties": {
-              "depth": {
-                "title": "Depth",
-                "description": "A number for the depth to extrude the louvers.",
-                "exclusiveMinimum": 0,
-                "type": "number",
-                "format": "double"
+              "modifier": {
+                "title": "Modifier",
+                "description": "A string for a Honeybee Radiance Modifier (default: None).",
+                "type": "string"
               },
-              "offset": {
-                "title": "Offset",
-                "description": "A number for the distance to louvers from the wall.",
-                "default": 0,
-                "minimum": 0,
-                "type": "number",
-                "format": "double"
-              },
-              "angle": {
-                "title": "Angle",
-                "description": "A number between -90 and 90 for the for an angle to rotate the louvers in degrees. 0 indicates louvers perpendicular to the wall. Positive values indicate a downward rotation. Negative values indicate an upward rotation.",
-                "default": 0,
-                "minimum": -90,
-                "maximum": 90,
-                "type": "number",
-                "format": "double"
-              },
-              "contour_vector": {
-                "title": "Contour Vector",
-                "description": "A list of two float values representing the (x, y) of a 2D vector for the direction along which contours are generated. (0, 1) will generate horizontal contours, (1, 0) will generate vertical contours, and (1, 1) will generate diagonal contours.",
-                "default": [
-                  0,
-                  1
-                ],
-                "minItems": 2,
-                "maxItems": 2,
-                "type": "array",
-                "items": {
-                  "type": "number",
-                  "format": "double"
-                }
-              },
-              "flip_start_side": {
-                "title": "Flip Start Side",
-                "description": "Boolean to note whether the side the louvers start from should be flipped. Default is False to have contours on top or right. Setting to True will start contours on the bottom or left.",
-                "default": false,
-                "type": "boolean"
+              "modifier_blk": {
+                "title": "Modifier Blk",
+                "description": "A string for a Honeybee Radiance Modifier to be used in direct solar simulations and in isolation studies (assessingthe contribution of individual objects) (default: None).",
+                "type": "string"
               },
               "type": {
                 "title": "Type",
-                "default": "_LouversBase",
+                "default": "_PropertiesBaseAbridged",
                 "type": "string",
-                "pattern": "^_LouversBase$",
+                "pattern": "^_PropertiesBaseAbridged$",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "_PropertiesBaseAbridged",
+        "description": "Base class of Abridged Radiance Properties.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "_WindowParameterBase": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "user_data": {
+                "title": "User Data",
+                "description": "Optional dictionary of user data associated with the object.All keys and values of this dictionary should be of a standard data type to ensure correct serialization of the object (eg. str, float, int, list). When a list is used, each item in the list will be assigned to the generated Honeybee apertures.",
+                "type": "object"
+              },
+              "type": {
+                "title": "Type",
+                "default": "_WindowParameterBase",
+                "type": "string",
+                "pattern": "^_WindowParameterBase$",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "_WindowParameterBase",
+        "description": "Base class for all window parameters.",
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "IDdRadianceBaseModel": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "identifier": {
+                "title": "Identifier",
+                "description": "Text string for a unique Radiance object. Must not contain spaces or special characters. This will be used to identify the object across a model and in the exported Radiance files.",
+                "minLength": 1,
+                "pattern": "^[.A-Za-z0-9_-]+$",
+                "type": "string"
+              },
+              "display_name": {
+                "title": "Display Name",
+                "description": "Display name of the object with no character restrictions.",
+                "type": "string"
+              },
+              "type": {
+                "title": "Type",
+                "default": "IDdRadianceBaseModel",
+                "type": "string",
+                "pattern": "^IDdRadianceBaseModel$",
                 "readOnly": true
               }
             },
             "required": [
-              "depth"
+              "identifier"
             ],
             "additionalProperties": false
           }
         ],
-        "title": "_LouversBase",
-        "description": "Base class for for a series of louvered shades over a wall.",
+        "title": "IDdRadianceBaseModel",
+        "description": "Base class for all objects requiring a valid Radiance identifier.",
         "discriminator": {
           "propertyName": "type"
         }
@@ -4930,7 +5216,7 @@
           "propertyName": "type"
         }
       },
-      "_WindowParameterBase": {
+      "_LouversBase": {
         "allOf": [
           {
             "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
@@ -4938,64 +5224,67 @@
           {
             "type": "object",
             "properties": {
-              "user_data": {
-                "title": "User Data",
-                "description": "Optional dictionary of user data associated with the object.All keys and values of this dictionary should be of a standard data type to ensure correct serialization of the object (eg. str, float, int, list). When a list is used, each item in the list will be assigned to the generated Honeybee apertures.",
-                "type": "object"
+              "depth": {
+                "title": "Depth",
+                "description": "A number for the depth to extrude the louvers.",
+                "exclusiveMinimum": 0,
+                "type": "number",
+                "format": "double"
+              },
+              "offset": {
+                "title": "Offset",
+                "description": "A number for the distance to louvers from the wall.",
+                "default": 0,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              },
+              "angle": {
+                "title": "Angle",
+                "description": "A number between -90 and 90 for the for an angle to rotate the louvers in degrees. 0 indicates louvers perpendicular to the wall. Positive values indicate a downward rotation. Negative values indicate an upward rotation.",
+                "default": 0,
+                "minimum": -90,
+                "maximum": 90,
+                "type": "number",
+                "format": "double"
+              },
+              "contour_vector": {
+                "title": "Contour Vector",
+                "description": "A list of two float values representing the (x, y) of a 2D vector for the direction along which contours are generated. (0, 1) will generate horizontal contours, (1, 0) will generate vertical contours, and (1, 1) will generate diagonal contours.",
+                "default": [
+                  0,
+                  1
+                ],
+                "minItems": 2,
+                "maxItems": 2,
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "flip_start_side": {
+                "title": "Flip Start Side",
+                "description": "Boolean to note whether the side the louvers start from should be flipped. Default is False to have contours on top or right. Setting to True will start contours on the bottom or left.",
+                "default": false,
+                "type": "boolean"
               },
               "type": {
                 "title": "Type",
-                "default": "_WindowParameterBase",
+                "default": "_LouversBase",
                 "type": "string",
-                "pattern": "^_WindowParameterBase$",
-                "readOnly": true
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "title": "_WindowParameterBase",
-        "description": "Base class for all window parameters.",
-        "discriminator": {
-          "propertyName": "type"
-        }
-      },
-      "IDdRadianceBaseModel": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/_OpenAPIGenBaseModel"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "identifier": {
-                "title": "Identifier",
-                "description": "Text string for a unique Radiance object. Must not contain spaces or special characters. This will be used to identify the object across a model and in the exported Radiance files.",
-                "minLength": 1,
-                "pattern": "^[.A-Za-z0-9_-]+$",
-                "type": "string"
-              },
-              "display_name": {
-                "title": "Display Name",
-                "description": "Display name of the object with no character restrictions.",
-                "type": "string"
-              },
-              "type": {
-                "title": "Type",
-                "default": "IDdRadianceBaseModel",
-                "type": "string",
-                "pattern": "^IDdRadianceBaseModel$",
+                "pattern": "^_LouversBase$",
                 "readOnly": true
               }
             },
             "required": [
-              "identifier"
+              "depth"
             ],
             "additionalProperties": false
           }
         ],
-        "title": "IDdRadianceBaseModel",
-        "description": "Base class for all objects requiring a valid Radiance identifier.",
+        "title": "_LouversBase",
+        "description": "Base class for for a series of louvered shades over a wall.",
         "discriminator": {
           "propertyName": "type"
         }
