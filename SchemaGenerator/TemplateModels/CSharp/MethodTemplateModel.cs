@@ -10,7 +10,7 @@ public class MethodTemplateModel: MethodTemplateModelBase
     public PropertyTemplateModel ReturnType { get; set; }
     public List<PropertyTemplateModel> Params { get; set; }
 
-    public MethodTemplateModel(string name, OpenApiPathItem openApi):base(name, openApi)
+    public MethodTemplateModel(string pathName, OpenApiPathItem openApi):base(pathName, openApi)
     {
         var operation = openApi.First().Value;
 
@@ -21,7 +21,7 @@ public class MethodTemplateModel: MethodTemplateModelBase
         HasParameter = (Params?.Any()).GetValueOrDefault();
 
         var returnObj = operation.Responses["200"]?.Content?.FirstOrDefault().Value?.Schema; // Successful Response
-        ReturnType = new PropertyTemplateModel(name, returnObj, false, false);
+        ReturnType = new PropertyTemplateModel("", returnObj, false, false);
 
         if (returnObj != null)
         {
