@@ -21,9 +21,12 @@ public class MethodTemplateModelBase
     //public List<PropertyTemplateModelBase> Params { get; set; }
 
     protected List<(NJsonSchema.JsonSchema schema, bool required, string name)> ParamSchemas { get; } = new List<(NJsonSchema.JsonSchema schema, bool required, string name)>();
-    public MethodTemplateModelBase(string name, OpenApiPathItem openApi)
+    public MethodTemplateModelBase(string pathName, OpenApiPathItem openApi)
     {
-        this.MethodName = Helper.CleanMethodName(name);
+        var operationName = openApi?.FirstOrDefault().Value?.OperationId;
+        operationName = string.IsNullOrEmpty(operationName) ? pathName: operationName;
+
+        this.MethodName = Helper.CleanMethodName(operationName);
         var operation = openApi.First().Value;
         this.Summary = operation.Summary;
         this.Document = operation.Description;
