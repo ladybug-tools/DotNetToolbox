@@ -11,6 +11,9 @@ public class ProcessorTemplateModel
     public string InterfaceName => $"I{ClassName}";
     public string ClassName { get; set; }
     public List<MethodTemplateModel> Methods { get; set; }
+    public List<string> CsImports { get; set; } = new List<string>();
+    public List<string> CsPackages => CsImports;
+    public bool HasCsImports => CsPackages.Any();
     public ProcessorTemplateModel(OpenApiDocument doc, string processorName = "Processor")
     {
         ClassName = processorName;

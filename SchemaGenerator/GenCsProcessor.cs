@@ -5,6 +5,7 @@ using NJsonSchema.Generation;
 using System.IO;
 //using TemplateModels.CSharp;
 using TemplateModels;
+using System.Linq;
 
 namespace SchemaGenerator;
 
@@ -14,7 +15,7 @@ public class GenCsProcessor : GenProcessorBase
     {
         TemplateModels.Helper.Language = TemplateModels.TargetLanguage.CSharp;
 
-        var doc = GetDoc();
+        var doc = GetDoc(out var docMapper);
         // template
         var templateDir = System.IO.Path.Combine(Generator.templateDir, TemplateModels.Helper.Language.ToString());
 
@@ -22,6 +23,12 @@ public class GenCsProcessor : GenProcessorBase
         Directory.CreateDirectory(srcDir);
 
         var m = new TemplateModels.CSharp.ProcessorTemplateModel(doc, "MessageProcessor");
+        m.CsImports = docMapper.All
+            .Select(_ => _.Module.Split(".").First()) // get the package name: honeybee_schema.radiance.modifierset
+            .Distinct() //honeybee_schema, dragonfly_schema
+            .Where(_ => _ != moduleName) //dragonfly_schema
+            .Select(_ => Helper.ToPascalCase(_)).ToList(); //DragonflySchema
+
         TemplateModels.CSharp.ProcessorTemplateModel.SDKName = _sdkName;
 
         // generate processor interface
