@@ -315,6 +315,44 @@ public partial class Generator
         return mapper;
     }
 
+    private static Mapper GenMapper(IEnumerable<string> jsonFiles, out JObject docJson, out JObject jSchemas)
+    {
+        Mapper docMapper = null;
+        docJson = null;
+        jSchemas = null;
+        // combine all schema components
+        foreach (var j in jsonFiles)
+        {
+            // read schema
+            var schemaFile = System.IO.Path.Combine(docDir, j);
+            var json = System.IO.File.ReadAllText(schemaFile, System.Text.Encoding.UTF8);
+            Console.WriteLine($"Reading schema from {schemaFile}");
+            var jDocObj = JObject.Parse(json);
+            var schemas = jDocObj["components"]["schemas"] as JObject;
+
+            // read mapper
+            var mapperFile = System.IO.Path.Combine(docDir, j.Replace("_inheritance", "_mapper"));
+            var mapper = ReadMapper(mapperFile);
+
+            if (docJson == null)
+            {
+                docJson = jDocObj;
+                jSchemas = schemas;
+                docMapper = mapper;
+                continue;
+            }
+
+            jSchemas.Merge(schemas, new JsonMergeSettings
+            {
+                MergeArrayHandling = MergeArrayHandling.Union
+            });
+            docMapper.Merge(mapper);
+
+        }
+
+        return docMapper;
+    }
+
 
 
 }

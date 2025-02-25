@@ -1,5 +1,10 @@
 ﻿// Auto-generated
 using System.Collections.Generic;
+{% if HasCsImports -%}
+{% for Package in CsPackages -%}
+using {{ Package }};
+{% endfor -%}
+{% endif -%}
 
 namespace {{ NameSpaceName }}
 {

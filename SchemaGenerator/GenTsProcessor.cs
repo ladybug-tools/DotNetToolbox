@@ -10,7 +10,7 @@ public class GenTsProcessor : GenProcessorBase
     {
         TemplateModels.Helper.Language = TemplateModels.TargetLanguage.TypeScript;
 
-        var doc = GetDoc();
+        var doc = GetDoc(out var mapper);
         // template
         var templateDir = System.IO.Path.Combine(Generator.templateDir, TemplateModels.Helper.Language.ToString());
 
@@ -18,7 +18,7 @@ public class GenTsProcessor : GenProcessorBase
         var srcDir = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(rootDir), "src", $"{TemplateModels.Helper.Language}SDK", "src");
         Directory.CreateDirectory(srcDir);
 
-        var m = new TemplateModels.TypeScript.ProcessorTemplateModel(doc, "MessageProcessor");
+        var m = new TemplateModels.TypeScript.ProcessorTemplateModel(doc, "MessageProcessor", mapper);
         TemplateModels.TypeScript.ProcessorTemplateModel.SDKName = _sdkName;
 
         // generate processor class
