@@ -31,6 +31,8 @@ namespace {{ NameSpaceName }}
             try
             {
                 msgBus = MessageBus.DecodeBase64MessageToMsgBus(arg);
+                if (!msgBus.MethodName.StartsWith("{{ NameSpaceName }}."))
+                    return;
                 ProcessMessage(msgBus, returnAction);
             }
             catch (Exception e)
@@ -56,7 +58,7 @@ namespace {{ NameSpaceName }}
                 switch (method)
                 {
                     {%- for method in Methods %}
-                    case "{{method.MethodName}}":
+                    case "{{ NameSpaceName }}.{{method.MethodName}}":
                         msgBack = Process{{method.MethodName}}(msgBus);
                         break;
                     {%- endfor %}

@@ -20,7 +20,7 @@ export const {{method.MethodName}} = async ({%- for param in method.Params -%}{%
   {%- endif -%}
   {%- endfor -%}
 
-  const bus = MessageBusHelper.MessageBus("{{method.MethodName}}", params);
+  const bus = MessageBusHelper.MessageBus("{{NameSpaceName}}.{{method.MethodName}}", params);
   {%- if method.HasReturn -%}
   const done: {{method.ReturnTypeName}} = {% if method.NeedReturnTypeConverter %}ConvertTo{{method.ReturnTypeName}}(await ProcessorHelper.waitForExecution(bus));{% else %}await ProcessorHelper.waitForExecution(bus);{% endif %}
   return done;
