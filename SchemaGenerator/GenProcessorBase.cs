@@ -10,6 +10,7 @@ namespace SchemaGenerator;
 public class GenProcessorBase : Generator
 {
     internal static string _sdkName => Generator.sdkName;
+    internal static string _version => Generator.BuildVersion;
     internal static string workingDir => Generator.workingDir;
     internal static string rootDir => Generator.rootDir;
     internal static OpenApiDocument GetDoc(out Mapper mapper)

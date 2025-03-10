@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Pollination.BrowserMessageHandler;
+using Pollination.BrowserMessageHandler.Model;
 
 // Auto-generated
 namespace {{ NameSpaceName }}
 {
     public partial class {{ClassName}}
     {
+        public static string SDKName = "{{NameSpaceName}}";
+        public static string SDKVersion = "{{SDKVersion}}";
+
         private static {{ClassName}} _instance;
         private static {{ClassName}} Instance
         {
@@ -37,7 +40,7 @@ namespace {{ NameSpaceName }}
             }
             catch (Exception e)
             {
-                msgBack = msgBus == null ? MessageBus.ErrorBus(e) : msgBus.ToErrorBus(e);
+                msgBack = msgBus == null ? MessageBusHelper.ErrorBus(e) : msgBus.ToErrorBus(e);
                 returnAction?.Invoke(msgBack.ToJson());
             }
         }
@@ -58,7 +61,7 @@ namespace {{ NameSpaceName }}
                 switch (method)
                 {
                     {%- for method in Methods %}
-                    case "{{ NameSpaceName }}.{{method.MethodName}}":
+                    case "{{method.MethodName}}":
                         msgBack = Process{{method.MethodName}}(msgBus);
                         break;
                     {%- endfor %}
@@ -70,12 +73,12 @@ namespace {{ NameSpaceName }}
             }
             catch (Exception e)
             {
-                msgBack = msgBus == null ? MessageBus.ErrorBus(e) : msgBus.ToErrorBus(e);
+                msgBack = msgBus == null ? MessageBusHelper.ErrorBus(e) : msgBus.ToErrorBus(e);
                 LogHelper.LogError(e);
             }
 
             if (msgBack == null)
-                msgBack = MessageBus.ErrorBus("Unknown Error!");
+                msgBack = MessageBusHelper.ErrorBus("Unknown Error!");
             return msgBack;
         }
 
