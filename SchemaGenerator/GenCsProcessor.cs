@@ -30,6 +30,7 @@ public class GenCsProcessor : GenProcessorBase
             .Select(_ => Helper.ToPascalCase(_)).ToList(); //DragonflySchema
 
         TemplateModels.CSharp.ProcessorTemplateModel.SDKName = _sdkName;
+        TemplateModels.CSharp.ProcessorTemplateModel.BuildSDKVersion = _version;
 
         // generate processor interface
         var file = GenProcessorInterface(templateDir, m, outputDir);

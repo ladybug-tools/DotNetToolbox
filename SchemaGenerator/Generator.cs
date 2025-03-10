@@ -16,7 +16,8 @@ public partial class Generator
     protected static Config _config;
     public static string sdkName => _config.sdkName; //"DragonflySchema";
     public static string moduleName => _config.moduleName; // "dragonfly_schema";
-
+    static string _buildVersion = "0.0.1";
+    public static string BuildVersion => _buildVersion;
     public static string workingDir = Environment.CurrentDirectory;
     public static string rootDir => workingDir.Substring(0, workingDir.IndexOf(_generatorFolder) + _generatorFolder.Length);
 
@@ -35,18 +36,19 @@ public partial class Generator
             throw new ArgumentException($"Invalid {rootDir}");
         Console.WriteLine($"Current root dir: {rootDir}");
 
+
         System.IO.Directory.CreateDirectory(outputDir);
 
-        var supportedArgs = new string[] 
-        { 
-            "--download", 
-            "--genTsModel", 
-            "--genCsModel", 
-            "--genCsProcessor", 
-            "--genTsProcessor", 
-            "--genCsInterface", 
+        var supportedArgs = new string[]
+        {
+            "--download",
+            "--genTsModel",
+            "--genCsModel",
+            "--genCsProcessor",
+            "--genTsProcessor",
+            "--genCsInterface",
             "--updateVersion",
-            "--config" 
+            "--config"
         };
 
         if (args == null || !args.Any())
@@ -54,6 +56,7 @@ public partial class Generator
 
         if (args.Where(_ => _.StartsWith("--")).Any(_ => !supportedArgs.Contains(_)))
             throw new ArgumentException($"Only following arguments are supported: {string.Join(",", supportedArgs)}");
+
 
 
         // get config.json
@@ -72,6 +75,8 @@ public partial class Generator
         // set configs
         var configJson = File.ReadAllText(configPath);
         _config = Newtonsoft.Json.JsonConvert.DeserializeObject<Config>(configJson);
+
+        _buildVersion = GetNextVersion();
 
 
         // download all json files
@@ -107,7 +112,7 @@ public partial class Generator
         }
 
         if (args.Contains("--updateVersion"))
-            UpdateVersions();
+            UpdateVersions(BuildVersion);
 
     }
 
@@ -139,7 +144,7 @@ public partial class Generator
 
     }
 
-    public static void UpdateVersions()
+    private static string GetNextVersion()
     {
         // get the current version from model_inheritance.json
         var root = System.IO.Path.GetDirectoryName(rootDir);
@@ -182,7 +187,7 @@ public partial class Generator
         try
         {
             var nugetVersions = (HttpHelper.ReadJson(api)["versions"] as JArray)?.Select(_ => _.ToString())?.ToList();
-     
+
             if (nugetVersions != null && nugetVersions.Any())
             {
                 nugetVersions.Sort(new VersionComparer());
@@ -199,7 +204,7 @@ public partial class Generator
         {
             //throw;
         }
-       
+
 
         Console.WriteLine($"Getting the existing version: {newVersion}");
         if (increaseVersion)
@@ -218,27 +223,33 @@ public partial class Generator
         }
 
         Console.WriteLine($"New version: {newVersion}");
+        return newVersion;
+    }
 
+    public static void UpdateVersions(string newVersion)
+    {
+        var root = System.IO.Path.GetDirectoryName(rootDir);
+        var packageName = sdkName;
 
         //# update the version for CSharp
         var assemblyFile = System.IO.Path.Combine(root, "src", packageName, $"{packageName}.csproj");
         if (File.Exists(assemblyFile))
         {
             var file = System.IO.File.ReadAllText(assemblyFile);
-            var newFile = Regex.Replace(file, @"(?<=\SVersion\>)\S+(?=\<\/)", newVersion);
+            var newFile = Regex.Replace(file, @"(?<=\S<Version\>)\S+(?=\<\/)", newVersion);
             System.IO.File.WriteAllText(assemblyFile, newFile, Encoding.UTF8);
         }
 
 
         //# update the version for TypeScript
         var tsFile = System.IO.Path.Combine(root, "src", "TypescriptSDK", "package.json");
-        if (File.Exists(tsFile)) 
+        if (File.Exists(tsFile))
         {
             var file = System.IO.File.ReadAllText(tsFile, Encoding.UTF8);
             var newFile = Regex.Replace(file, @"(?<=version"": "")[^""]+(?="")", newVersion);
             System.IO.File.WriteAllText(tsFile, newFile, new UTF8Encoding(false));
         }
-     
+
 
     }
 
