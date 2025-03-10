@@ -9,6 +9,9 @@ public class ProcessorTemplateModel
 {
     public static string SDKName { get; set; }
     public string NameSpaceName => SDKName;
+
+    public static string BuildSDKVersion;
+    public string SDKVersion => BuildSDKVersion;
     public string InterfaceName => $"I{ClassName}";
     public string ClassName { get; set; }
     public List<MethodTemplateModel> Methods { get; set; }

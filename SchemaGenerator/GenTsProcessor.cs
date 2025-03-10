@@ -19,7 +19,9 @@ public class GenTsProcessor : GenProcessorBase
         Directory.CreateDirectory(srcDir);
 
         var m = new TemplateModels.TypeScript.ProcessorTemplateModel(doc, "MessageProcessor", mapper);
+
         TemplateModels.TypeScript.ProcessorTemplateModel.SDKName = _sdkName;
+        TemplateModels.TypeScript.ProcessorTemplateModel.BuildSDKVersion = _version;
 
         // generate processor class
         var classfile = GenProcessorClass(templateDir, m, outputDir);
