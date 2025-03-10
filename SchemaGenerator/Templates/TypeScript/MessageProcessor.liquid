@@ -6,9 +6,22 @@ import { MessageParamHelper, MessageParam, MessageBusHelper, ProcessorHelper } f
 import { {{ Import.Name }} } from "{{ Import.From }}";
 {% endfor -%}
 {% endif -%}
-{% for method in Methods %} {%- assign skipComma = true %}
+
+export class MessageProcessorHelper {
+  static SDKName = "{{NameSpaceName}}";
+  static SDKVersion = "{{SDKVersion}}";
+
+  static MessageBus(
+    methodName: string,
+    params?: MessageParam[]
+  ) {
+    return MessageBusHelper.MessageBus(methodName, params, MessageProcessorHelper.SDKName, MessageProcessorHelper.SDKVersion);
+  }
+
+}
 
 
+{%- for method in Methods -%}{%- assign skipComma = true -%}
 export const {{method.MethodName}} = async ({%- for param in method.Params -%}{%- if skipComma %}{%- assign skipComma = false %}{% else %}, {% endif %}{{param.TsParameterName}}: {{param.Type}}{%if param.HasDefault %} = {{param.DefaultCodeFormat}}{% endif %}{% endfor %}): Promise<{{method.ReturnTypeName}}> => {
 
   const params: MessageParam[] = [{% for param in method.Params %}{%- if param.HasDefault == false %}
@@ -20,7 +33,7 @@ export const {{method.MethodName}} = async ({%- for param in method.Params -%}{%
   {%- endif -%}
   {%- endfor -%}
 
-  const bus = MessageBusHelper.MessageBus("{{NameSpaceName}}.{{method.MethodName}}", params);
+  const bus = MessageProcessorHelper.MessageBus("{{method.MethodName}}", params);
   {%- if method.HasReturn -%}
   const done: {{method.ReturnTypeName}} = {% if method.NeedReturnTypeConverter %}ConvertTo{{method.ReturnTypeName}}(await ProcessorHelper.waitForExecution(bus));{% else %}await ProcessorHelper.waitForExecution(bus);{% endif %}
   return done;
@@ -28,4 +41,6 @@ export const {{method.MethodName}} = async ({%- for param in method.Params -%}{%
   await ProcessorHelper.waitForExecution(bus);
   {%- endif -%}
 };
-{% endfor %}
+
+
+{%- endfor -%}
