@@ -236,7 +236,7 @@ public partial class Generator
         if (File.Exists(assemblyFile))
         {
             var file = System.IO.File.ReadAllText(assemblyFile);
-            var newFile = Regex.Replace(file, @"(?<=\S<Version\>)\S+(?=\<\/)", newVersion);
+            var newFile = Regex.Replace(file, @"(?<=<Version>)\S+(?=\<\/)", newVersion);
             System.IO.File.WriteAllText(assemblyFile, newFile, Encoding.UTF8);
         }
 
