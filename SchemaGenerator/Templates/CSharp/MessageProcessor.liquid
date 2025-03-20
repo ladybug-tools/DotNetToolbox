@@ -34,7 +34,7 @@ namespace {{ NameSpaceName }}
             try
             {
                 msgBus = MessageBus.DecodeBase64MessageToMsgBus(arg);
-                if (!msgBus.MethodName.StartsWith("{{ NameSpaceName }}."))
+                if (msgBus?.SdkName != SDKName)
                     return;
                 ProcessMessage(msgBus, returnAction);
             }
