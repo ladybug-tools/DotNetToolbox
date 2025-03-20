@@ -52,7 +52,7 @@ public class GenCsProcessor : GenProcessorBase
         // copy to src dir
         var targetSrcEnum = System.IO.Path.Combine(srcDir, System.IO.Path.GetFileName(enumfile));
         System.IO.File.Copy(enumfile, targetSrcEnum, true);
-        Console.WriteLine($"Generated {m.ClassName} is added as {targetSrcEnum}");
+        Console.WriteLine($"Generated MethodName Enum is added as {targetSrcEnum}");
     }
 
     private static string GenMethodNameEnum(string templateDir, TemplateModels.CSharp.ProcessorTemplateModel model, string outputDir, string fileExt = ".cs")
