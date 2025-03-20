@@ -19,7 +19,7 @@ public class GenCsProcessor : GenProcessorBase
         // template
         var templateDir = System.IO.Path.Combine(Generator.templateDir, TemplateModels.Helper.Language.ToString());
 
-        var srcDir = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(rootDir), "src", _sdkName, "Path");
+        var srcDir = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(rootDir), "src", $"{TemplateModels.Helper.Language}SDK", "Path");
         Directory.CreateDirectory(srcDir);
 
         var m = new TemplateModels.CSharp.ProcessorTemplateModel(doc, "MessageProcessor");
