@@ -1,0 +1,16 @@
+﻿/* 
+ * {{ NameSpaceName }}
+ *
+ * Contact: info@ladybug.tools
+ */
+
+// Auto-generated
+namespace {{ NameSpaceName }}
+{
+    public enum MethodName
+    {
+        {%- for method in Methods %}
+        {{ method.MethodName }},
+        {%- endfor %}
+    }
+}
