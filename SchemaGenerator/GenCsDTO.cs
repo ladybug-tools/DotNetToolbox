@@ -73,7 +73,7 @@ public class GenCsDTO : Generator
         var template = System.IO.Path.Combine(templateDir, TemplateModels.Helper.Language.ToString());
         var sc = doc.Components.Schemas;
         var classModels = new List<ClassTemplateModel>();
-        var srcDir = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(rootDir), "src", _sdkName, "Model");
+        var srcDir = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(rootDir), "src", $"{TemplateModels.Helper.Language}SDK", "Model");
         Directory.CreateDirectory(srcDir);
 
         ClassTemplateModel.SDKName = _sdkName;
