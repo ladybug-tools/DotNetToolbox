@@ -21,8 +21,14 @@ export class MessageProcessorHelper {
 }
 
 
-{%- for method in Methods -%}{%- assign skipComma = true -%}
-export const {{method.MethodName}} = async ({%- for param in method.Params -%}{%- if skipComma %}{%- assign skipComma = false %}{% else %}, {% endif %}{{param.TsParameterName}}: {{param.Type}}{%if param.HasDefault %} = {{param.DefaultCodeFormat}}{% endif %}{% endfor %}): Promise<{{method.ReturnTypeName}}> => {
+{%- for method in Methods -%}
+type {{method.MethodName}}Params = {
+{%- for param in method.Params -%}
+{{param.TsParameterName}}: {{param.Type}};
+{%- endfor -%}
+};
+{%- assign skipComma = true -%}
+export const {{method.MethodName}}WithObject = async ({ {%- for param in method.Params -%}{%- if skipComma %}{%- assign skipComma = false %}{% else %}, {% endif %}{{param.TsParameterName}}{%if param.HasDefault %} = {{param.DefaultCodeFormat}}{% endif %}{% endfor %} }: {{method.MethodName}}Params): Promise<{{method.ReturnTypeName}}> => {
 
   const params: MessageParam[] = [{% for param in method.Params %}{%- if param.HasDefault == false %}
     MessageParamHelper.MessageParam("{{param.TsParameterName}}", {{param.TsParameterName}}),{% endif %}{% endfor %}
@@ -41,6 +47,8 @@ export const {{method.MethodName}} = async ({%- for param in method.Params -%}{%
   await ProcessorHelper.waitForExecution(bus);
   {%- endif -%}
 };
+
+export const {{method.MethodName}} = async ({%- assign skipComma = true -%}{%- for param in method.Params -%}{%- if skipComma %}{%- assign skipComma = false %}{% else %}, {% endif %}{{param.TsParameterName}}: {{param.Type}}{%if param.HasDefault %} = {{param.DefaultCodeFormat}}{% endif %}{% endfor %}): Promise<{{method.ReturnTypeName}}> => {{method.MethodName}}WithObject({ {%- assign skipComma = true -%}{%- for param in method.Params -%}{%- if skipComma %}{%- assign skipComma = false %}{% else %}, {% endif %}{{param.TsParameterName}}{% endfor %} });
 
 
 {%- endfor -%}
