@@ -6,6 +6,7 @@ namespace TemplateModels.Base;
 
 public class MethodTemplateModelBase
 {
+    public string OperationId { get; set; }
     public string MethodName { get; set; }
     public bool HasReturn { get; set; }
     public bool HasParameter { get; set; }
@@ -15,7 +16,7 @@ public class MethodTemplateModelBase
     public string Summary { get; set; }
     public string Document { get; set; }
 
-    public string ReturnTypeName { get; set; } 
+    public string ReturnTypeName { get; set; }
     // void or type name
     //public PropertyTemplateModelBase ReturnType { get; set; }
     //public List<PropertyTemplateModelBase> Params { get; set; }
@@ -23,8 +24,8 @@ public class MethodTemplateModelBase
     protected List<(NJsonSchema.JsonSchema schema, bool required, string name)> ParamSchemas { get; } = new List<(NJsonSchema.JsonSchema schema, bool required, string name)>();
     public MethodTemplateModelBase(string pathName, OpenApiPathItem openApi)
     {
-        var operationName = openApi?.FirstOrDefault().Value?.OperationId;
-        operationName = string.IsNullOrEmpty(operationName) ? pathName: operationName;
+        this.OperationId = openApi?.FirstOrDefault().Value?.OperationId;
+        var operationName = string.IsNullOrEmpty(OperationId) ? pathName : OperationId;
 
         this.MethodName = Helper.CleanMethodName(operationName);
         var operation = openApi.First().Value;
@@ -34,7 +35,7 @@ public class MethodTemplateModelBase
         // all reference and non-reference type parameters
         if (operation?.ActualParameters != null && operation.ActualParameters.Any())
             ParamSchemas = operation.ActualParameters
-                .Select(_ => (_.Schema, _.IsRequired, name: _.Kind == OpenApiParameterKind.Body ? _?.Schema?.Title: _.Name))
+                .Select(_ => (_.Schema, _.IsRequired, name: _.Kind == OpenApiParameterKind.Body ? _?.Schema?.Title : _.Name))
                 .ToList();
 
 
