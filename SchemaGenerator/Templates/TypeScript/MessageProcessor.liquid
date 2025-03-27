@@ -18,6 +18,12 @@ export class MessageProcessorHelper {
     return MessageBusHelper.MessageBus(methodName, params, MessageProcessorHelper.SDKName, MessageProcessorHelper.SDKVersion);
   }
 
+  static OperationId: Record<string, string> = {
+    {%- for method in Methods -%}
+    {{method.MethodName}}: "{{method.OperationId}}",
+    {%- endfor -%}
+  };
+
 }
 
 
