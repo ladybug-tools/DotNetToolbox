@@ -11,7 +11,7 @@ namespace SchemaGenerator;
 
 public class GenCsProcessor : GenProcessorBase
 {
-    internal static void Execute()
+    internal static void Execute(bool adaptAllMathods)
     {
         TemplateModels.Helper.Language = TemplateModels.TargetLanguage.CSharp;
 
@@ -31,6 +31,7 @@ public class GenCsProcessor : GenProcessorBase
 
         TemplateModels.CSharp.ProcessorTemplateModel.SDKName = _sdkName;
         TemplateModels.CSharp.ProcessorTemplateModel.BuildSDKVersion = _version;
+        TemplateModels.CSharp.ProcessorTemplateModel.AdaptAllMethods = adaptAllMathods;
 
         // generate processor interface
         var file = GenProcessorInterface(templateDir, m, outputDir);

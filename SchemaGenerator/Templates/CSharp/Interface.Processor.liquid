@@ -8,6 +8,11 @@ using {{ Package }};
 
 namespace {{ NameSpaceName }}
 {
+	{%- if AdaptAllMethodsWithProcessor -%}
+	// when adapting all methods to the processor
+    public partial interface IAdapter: IMessageProcessor {}
+	{%- endif -%}
+
 	public partial interface {{InterfaceName}}
 	{
 		{% for method in Methods %} {%- assign skipComma = true %}
