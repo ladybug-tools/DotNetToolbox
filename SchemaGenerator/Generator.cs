@@ -45,6 +45,7 @@ public partial class Generator
             "--genTsModel",
             "--genCsModel",
             "--genCsProcessor",
+            "--adaptCsProcessor",
             "--genTsProcessor",
             "--genCsInterface",
             "--updateVersion",
@@ -98,8 +99,10 @@ public partial class Generator
 
         if (args.Contains("--genCsProcessor"))
         {
-            GenCsProcessor.Execute();
+            var adaptAllMethod = args.Contains("--adaptCsProcessor");
+            GenCsProcessor.Execute(adaptAllMethod);
         }
+
         if (args.Contains("--genTsProcessor"))
         {
             GenTsProcessor.Execute();

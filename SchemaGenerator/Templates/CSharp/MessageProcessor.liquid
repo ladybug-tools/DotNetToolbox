@@ -21,7 +21,7 @@ namespace {{ NameSpaceName }}
             }
         }
 
-        public static void MessageReceived(string arg, Action<object> returnAction, Adapter adapter)
+        public static void MessageReceived(string arg, Action<object> returnAction, IAdapter adapter)
         {
             MessageProcessor.Adapter = adapter;
             MessageProcessor.Instance.MessageReceived(arg, returnAction);
@@ -101,10 +101,10 @@ namespace {{ NameSpaceName }}
 
             // Execute
             {%- if method.HasReturn -%}
-            var returnData = Instance.{{method.MethodName}}({% for param in method.Params %}{%- if skipComma %}{%- assign skipComma = false %}{% else %}, {% endif %}{{param.CsParameterName}}: {{param.CsParameterName}}{% endfor %});
+            var returnData = {{ AdapterOrProcessor }}.{{method.MethodName}}({% for param in method.Params %}{%- if skipComma %}{%- assign skipComma = false %}{% else %}, {% endif %}{{param.CsParameterName}}: {{param.CsParameterName}}{% endfor %});
             var msgBack = msg.ToReturnBus(returnData);
             {%- else -%}
-            Instance.{{method.MethodName}}({% for param in method.Params %}{%- if skipComma %}{%- assign skipComma = false %}{% else %}, {% endif %}{{param.CsParameterName}}: {{param.CsParameterName}}{% endfor %});
+            {{ AdapterOrProcessor }}.{{method.MethodName}}({% for param in method.Params %}{%- if skipComma %}{%- assign skipComma = false %}{% else %}, {% endif %}{{param.CsParameterName}}: {{param.CsParameterName}}{% endfor %});
             var msgBack = msg.ToReturnBus(true); 
             {%- endif -%}
             return msgBack;
