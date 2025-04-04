@@ -49,6 +49,7 @@ public partial class Generator
             "--genTsProcessor",
             "--genCsInterface",
             "--updateVersion",
+            "--useApiVersion",
             "--config"
         };
 
@@ -77,7 +78,7 @@ public partial class Generator
         var configJson = File.ReadAllText(configPath);
         _config = Newtonsoft.Json.JsonConvert.DeserializeObject<Config>(configJson);
 
-        _buildVersion = GetNextVersion();
+        _buildVersion = args.Contains("--useApiVersion") ? GetVersion(): GetNextVersion();
 
 
         // download all json files
@@ -115,7 +116,10 @@ public partial class Generator
         }
 
         if (args.Contains("--updateVersion"))
+        {
             UpdateVersions(BuildVersion);
+        }
+          
 
     }
 
@@ -147,7 +151,7 @@ public partial class Generator
 
     }
 
-    private static string GetNextVersion()
+    private static string GetVersion()
     {
         // get the current version from model_inheritance.json
         var root = System.IO.Path.GetDirectoryName(rootDir);
@@ -157,9 +161,18 @@ public partial class Generator
             jsonFile = Directory.GetFiles(docDir, "*_inheritance.json", SearchOption.TopDirectoryOnly).FirstOrDefault();
 
         var modelJson = System.IO.File.ReadAllText(jsonFile);
-        var newVersion = JObject.Parse(modelJson)["info"]["version"].ToString();
-        newVersion = string.IsNullOrEmpty(newVersion) ? "1.0" : newVersion;
-        Console.WriteLine($"Found document version: {newVersion}");
+        var version = JObject.Parse(modelJson)["info"]["version"].ToString();
+        version = string.IsNullOrEmpty(version) ? "1.0" : version;
+        Console.WriteLine($"Found document version: {version}");
+
+        return version;
+    }
+
+
+    private static string GetNextVersion()
+    {
+        // get the current version from model_inheritance.json
+        var newVersion = GetVersion();
 
         // 1.58.3.1 => 1.5803.1
         //1.5.8 => 1.508
