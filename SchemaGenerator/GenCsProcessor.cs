@@ -11,7 +11,7 @@ namespace SchemaGenerator;
 
 public class GenCsProcessor : GenProcessorBase
 {
-    internal static void Execute(bool adaptAllMathods)
+    internal static void Execute()
     {
         TemplateModels.Helper.Language = TemplateModels.TargetLanguage.CSharp;
 
@@ -31,14 +31,13 @@ public class GenCsProcessor : GenProcessorBase
 
         TemplateModels.CSharp.ProcessorTemplateModel.SDKName = _sdkName;
         TemplateModels.CSharp.ProcessorTemplateModel.BuildSDKVersion = _version;
-        TemplateModels.CSharp.ProcessorTemplateModel.AdaptAllMethods = adaptAllMathods;
 
-        // generate processor interface
-        var file = GenProcessorInterface(templateDir, m, outputDir);
+        // generate Service
+        var file = GenService(templateDir, m, outputDir);
         // copy to src dir
         var targetSrcTs = System.IO.Path.Combine(srcDir, System.IO.Path.GetFileName(file));
         System.IO.File.Copy(file, targetSrcTs, true);
-        Console.WriteLine($"Generated {m.InterfaceName} is added as {targetSrcTs}");
+        Console.WriteLine($"Generated Service is added as {targetSrcTs}");
 
 
         // generate processor class
@@ -75,11 +74,11 @@ public class GenCsProcessor : GenProcessorBase
     }
 
 
-    private static string GenProcessorInterface(string templateDir, TemplateModels.CSharp.ProcessorTemplateModel model, string outputDir)
+    private static string GenService(string templateDir, TemplateModels.CSharp.ProcessorTemplateModel model, string outputDir)
     {
-        var templateSource = File.ReadAllText(Path.Combine(templateDir, "Interface.Processor.liquid"), System.Text.Encoding.UTF8);
+        var templateSource = File.ReadAllText(Path.Combine(templateDir, "Service.liquid"), System.Text.Encoding.UTF8);
         var code = Gen(templateSource, model);
-        var file = System.IO.Path.Combine(outputDir, $"{model.InterfaceName}.cs");
+        var file = System.IO.Path.Combine(outputDir, $"Service.cs");
         System.IO.File.WriteAllText(file, code, System.Text.Encoding.UTF8);
         return file;
     }

@@ -112,7 +112,7 @@ public class PropertyTemplateModel : PropertyTemplateModelBase
         {
             var arrayItem = json.Item;
             var itemType = GetTypeScriptType(arrayItem, collectImportType);
-            type = $"{ConvertToTypeScriptType(itemType)} []";
+            type = $"{ConvertToTypeScriptType(itemType)}[]";
         }
         else
         {

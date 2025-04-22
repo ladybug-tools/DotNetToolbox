@@ -23,8 +23,8 @@ public class GenTsProcessor : GenProcessorBase
         TemplateModels.TypeScript.ProcessorTemplateModel.SDKName = _sdkName;
         TemplateModels.TypeScript.ProcessorTemplateModel.BuildSDKVersion = _version;
 
-        // generate processor class
-        var classfile = GenProcessorClass(templateDir, m, outputDir);
+        // generate service class
+        var classfile = GenService(templateDir, m, outputDir);
         // copy to src dir
         var targetSrcClass = System.IO.Path.Combine(srcDir, System.IO.Path.GetFileName(classfile));
         System.IO.File.Copy(classfile, targetSrcClass, true);
@@ -49,11 +49,11 @@ public class GenTsProcessor : GenProcessorBase
     }
 
 
-    private static string GenProcessorClass(string templateDir, TemplateModels.TypeScript.ProcessorTemplateModel model, string outputDir, string fileExt = ".ts")
+    private static string GenService(string templateDir, TemplateModels.TypeScript.ProcessorTemplateModel model, string outputDir, string fileExt = ".ts")
     {
-        var templateSource = File.ReadAllText(Path.Combine(templateDir, "MessageProcessor.liquid"), System.Text.Encoding.UTF8);
+        var templateSource = File.ReadAllText(Path.Combine(templateDir, "Service.liquid"), System.Text.Encoding.UTF8);
         var code = Gen(templateSource, model);
-        var file = System.IO.Path.Combine(outputDir, $"{model.ClassName}{fileExt}");
+        var file = System.IO.Path.Combine(outputDir, $"Service{fileExt}");
         System.IO.File.WriteAllText(file, code, System.Text.Encoding.UTF8);
         return file;
     }

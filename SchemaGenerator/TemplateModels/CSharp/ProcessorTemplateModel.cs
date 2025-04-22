@@ -12,13 +12,11 @@ public class ProcessorTemplateModel
     public static string BuildSDKVersion;
     public string SDKVersion => BuildSDKVersion;
 
-    public static bool AdaptAllMethods;
-    public bool AdaptAllMethodsWithProcessor => AdaptAllMethods;
-    public string AdapterOrProcessor => AdaptAllMethods ? "MessageProcessor.Adapter" : "MessageProcessor.Instance";
-
     public string InterfaceName => $"I{ClassName}";
     public string ClassName { get; set; }
     public List<MethodTemplateModel> Methods { get; set; }
+    public bool HasMethod => Methods.Any();
+
     public List<string> CsImports { get; set; } = new List<string>();
     public List<string> CsPackages => CsImports;
     public bool HasCsImports => CsPackages.Any();

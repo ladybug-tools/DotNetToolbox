@@ -8,12 +8,8 @@ using {{ Package }};
 
 namespace {{ NameSpaceName }}
 {
-	{%- if AdaptAllMethodsWithProcessor -%}
-	// when adapting all methods to the processor
-    public partial interface IAdapter: IMessageProcessor {}
-	{%- endif -%}
 
-	public partial interface {{InterfaceName}}
+	public abstract class InteractionService
 	{
 		{% for method in Methods %} {%- assign skipComma = true %}
 		/// <summary>
@@ -21,7 +17,7 @@ namespace {{ NameSpaceName }}
 		/// </summary>{% for param in method.Params %}
 		/// <param name="{{param.CsParameterName}}">{{param.Description}}</param>{% endfor %}
 		/// <returns>{{method.ReturnDoc}}</returns>
-		{{method.ReturnTypeName}} {{method.MethodName}}({% for param in method.Params %}{%- if skipComma %}{%- assign skipComma = false %}{% else %}, {% endif %}{{param.ConstructionParameterCode}}{% endfor %});
+        public abstract {% if method.HasReturn %}Task<{{method.ReturnTypeName}}>{% else %}Task{% endif %} {{method.MethodName}}({% for param in method.Params %}{%- if skipComma %}{%- assign skipComma = false %}{% else %}, {% endif %}{{param.ConstructionParameterCode}}{% endfor %});
 		{% endfor %}
 	}
 
