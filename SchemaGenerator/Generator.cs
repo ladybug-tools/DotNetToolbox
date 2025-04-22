@@ -45,7 +45,6 @@ public partial class Generator
             "--genTsModel",
             "--genCsModel",
             "--genCsProcessor",
-            "--adaptCsProcessor",
             "--genTsProcessor",
             "--genCsInterface",
             "--updateVersion",
@@ -78,7 +77,7 @@ public partial class Generator
         var configJson = File.ReadAllText(configPath);
         _config = Newtonsoft.Json.JsonConvert.DeserializeObject<Config>(configJson);
 
-        _buildVersion = args.Contains("--useApiVersion") ? GetVersion(): GetNextVersion();
+        _buildVersion = args.Contains("--useApiVersion") ? GetVersion() : GetNextVersion();
 
 
         // download all json files
@@ -100,8 +99,7 @@ public partial class Generator
 
         if (args.Contains("--genCsProcessor"))
         {
-            var adaptAllMethod = args.Contains("--adaptCsProcessor");
-            GenCsProcessor.Execute(adaptAllMethod);
+            GenCsProcessor.Execute();
         }
 
         if (args.Contains("--genTsProcessor"))
@@ -119,7 +117,7 @@ public partial class Generator
         {
             UpdateVersions(BuildVersion);
         }
-          
+
 
     }
 

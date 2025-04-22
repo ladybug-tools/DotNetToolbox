@@ -15,6 +15,8 @@ public class ProcessorTemplateModel
     public string InterfaceName => $"I{ClassName}";
     public string ClassName { get; set; }
     public List<MethodTemplateModel> Methods { get; set; }
+    public bool HasMethod => Methods.Any();
+
     public List<TsImport> TsImports { get; set; } = new List<TsImport>();
     public bool HasTsImports => TsImports.Any();
 
@@ -24,7 +26,7 @@ public class ProcessorTemplateModel
         mapper = mapper ?? new Mapper(null, null);
 
         ClassName = processorName;
-        Methods = doc.Paths.Select(_=> new MethodTemplateModel(_.Key, _.Value))?.Where(_=>!string.IsNullOrEmpty(_.MethodName))?.ToList();
+        Methods = doc.Paths.Select(_ => new MethodTemplateModel(_.Key, _.Value))?.Where(_ => !string.IsNullOrEmpty(_.MethodName))?.ToList();
         var tsImports = Methods?.SelectMany(_ => _.TsImports)?.Distinct().Select(_ => new TsImport(_, from: mapper.TryGetModule(_)))?.ToList() ?? new List<TsImport>();
         // remove importing self
         tsImports = tsImports.Where(_ => _.Name != ClassName).ToList();
@@ -35,7 +37,8 @@ public class ProcessorTemplateModel
         TsImports.ForEach(_ => _.Check());
 
         // add models to import path
-        TsImports.ForEach(_ => {
+        TsImports.ForEach(_ =>
+        {
             if (_.From.StartsWith("./"))
                 _.From = $"./models/{_.From.Substring(2)}";
         });
