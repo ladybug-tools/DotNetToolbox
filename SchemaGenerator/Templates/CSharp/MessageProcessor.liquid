@@ -31,6 +31,9 @@ namespace {{ NameSpaceName }}
             // default methods for setting up versions
             RegisterDefaultMethods();
 
+            // add custom JsonConverters
+            AdddCustomJsonConverters();
+
             // setup TS service for C# to call Ts functions
             if (tsService != null)
             {
