@@ -13,7 +13,7 @@ namespace {{ NameSpaceName }}
         private ServiceHub serviceHub;
 
 
-        public {{ClassName}}(InteractionService service)
+        public {{ClassName}}(InteractionService service, InteractionTsService tsService = default)
         {
             if (service == null) 
                 throw new ArgumentNullException(nameof(service));
@@ -27,6 +27,15 @@ namespace {{ NameSpaceName }}
             var delegate_{{method.MethodName}} = service.{{method.MethodName}};
             serviceHub.RegisterMethod("{{method.MethodName}}", delegate_{{method.MethodName}});
             {%- endfor %}
+
+            // default methods for setting up versions
+            RegisterDefaultMethods();
+
+            // setup TS service for C# to call Ts functions
+            if (tsService != null)
+            {
+                tsService.Init(serviceHub);
+            }
 
         }
     
