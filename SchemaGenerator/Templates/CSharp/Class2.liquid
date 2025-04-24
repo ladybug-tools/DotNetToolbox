@@ -39,7 +39,8 @@ namespace {{ NameSpaceName }}
         /// <summary>
         /// Initializes a new instance of the <see cref="{{CsClassName}}" /> class.
         /// </summary>
-        [JsonConstructorAttribute]
+        [LBTNewtonSoft.Newtonsoft.Json.JsonConstructorAttribute]
+        [System.Text.Json.Serialization.JsonConstructor]
         protected {{CsClassName}}() 
         { 
             // Set readonly properties with defaultValue
@@ -59,7 +60,8 @@ namespace {{ NameSpaceName }}
         {%- endif -%}
     {%- endfor -%}
     {%- if hasOnlyReadOnly -%}
-        [JsonConstructorAttribute]
+        [LBTNewtonSoft.Newtonsoft.Json.JsonConstructorAttribute]
+        [System.Text.Json.Serialization.JsonConstructor]
     {%- endif -%}
         public {{ CsClassName }}
         (
@@ -102,7 +104,8 @@ namespace {{ NameSpaceName }}
         [Range({% if property.HasMinimum %}{{ property.Minimum }}{% else %}{{ property.Type }}.MinValue{% endif %}, {% if property.HasMaximum %}{{ property.Maximum }}{% else %}{{ property.Type }}.MaxValue{% endif %})]{% endif %}{% if property.HasMinLength %}
         [MinLength({{ property.MinLength }})]{% endif %}{% if property.HasMaxLength %}
         [MaxLength({{ property.MaxLength }})]{% endif %}
-        [DataMember(Name = "{{ property.PropertyName }}"{% if property.IsRequired %}, IsRequired = true{% endif %})]
+        [DataMember(Name = "{{ property.PropertyName }}"{% if property.IsRequired %}, IsRequired = true{% endif %})] // For Newtonsoft.Json
+        [System.Text.Json.Serialization.JsonPropertyName("{{ property.PropertyName }}")] // For System.Text.Json
         public {{ property.Type }} {{ property.CsPropertyName }} { get;{% if property.IsReadOnly %} protected{% endif %} set; }{% if property.HasDefault %} = {% if property.HasVeryLongDefault %}{{ property.CsPropertyName }}Default{% else %}{{ property.DefaultCodeFormat }}{% endif %};{% endif %}
 	{%- endfor -%}
 
